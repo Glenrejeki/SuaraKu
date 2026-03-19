@@ -1,11 +1,17 @@
-export async function callHuggingFace(prompt: string) {
-  const response = await fetch("https://api-inference.huggingface.co/models/gpt2", {
-    method: "POST",
+export async function callHuggingFace(model: string, inputs: any) {
+  const HF_TOKEN = Deno.env.get('HF_TOKEN');
+  const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+    method: 'POST',
     headers: {
-      "Authorization": "Bearer YOUR_API_KEY",
-      "Content-Type": "application/json",
+      'Authorization': `Bearer ${HF_TOKEN}`,
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ inputs: prompt }),
+    body: JSON.stringify({ inputs }),
   });
+
+  if (response.status === 503) {
+    const error = await response.json();
+    throw new Error(`Model is loading: ${error.estimated_time}s`);
+  }
   return response.json();
 }
