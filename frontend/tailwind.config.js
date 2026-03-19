@@ -10,7 +10,6 @@ export default {
         primary: '#5B5BD6',
         success: '#22C55E',
         warning: '#F59E0B',
-        text: '#1F2937',
       }
     },
   },
