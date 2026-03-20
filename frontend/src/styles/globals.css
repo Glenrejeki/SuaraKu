@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './adaptive.css';
+
 :root {
   --primary: #5B5BD6;
   --success: #22C55E;
@@ -11,13 +13,21 @@
 
 body {
   color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Adaptive UI */
-[data-disability="blind"] .visual-only {
-  display: none;
+/* Base Accessibility */
+.high-contrast {
+  --primary: #FFFF00;
+  --text: #FFFFFF;
+  background-color: #000000 !important;
 }
 
-[data-disability="deaf"] audio {
+/* Custom Utilities */
+.no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -8,24 +8,37 @@ export function useVoice() {
 
   const speak = useCallback((text) => {
     if (!text) return
-    window.speechSynthesis.cancel() // Stop any current speech
+    window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'id-ID'
-    utterance.rate = 0.9 // Slightly slower for accessibility
+    utterance.rate = 0.9
     window.speechSynthesis.speak(utterance)
   }, [])
 
+  const readPage = useCallback(() => {
+    const elements = document.querySelectorAll('h1, h2, h3, p, button, label, li, [role="button"]');
+    let fullText = "";
+    elements.forEach(el => {
+      if (el.innerText) {
+        fullText += el.innerText + ". ";
+      }
+    });
+    speak(fullText);
+  }, [speak]);
+
   const startListening = useCallback((onResult) => {
-    if (!('webkitSpeechRecognition' in window)) {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       setError('Browser tidak mendukung Speech Recognition')
       return
     }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (recognitionRef.current) {
       recognitionRef.current.stop()
     }
 
-    const recognition = new window.webkitSpeechRecognition()
+    const recognition = new SpeechRecognition()
     recognitionRef.current = recognition
     recognition.lang = 'id-ID'
     recognition.continuous = false
@@ -45,9 +58,6 @@ export function useVoice() {
     recognition.onerror = (event) => {
       setIsListening(false)
       setError(event.error)
-      if (event.error === 'no-speech') {
-        speak('Maaf, tidak terdengar. Coba ucapkan lagi.')
-      }
     }
 
     recognition.onend = () => {
@@ -55,7 +65,7 @@ export function useVoice() {
     }
 
     recognition.start()
-  }, [speak])
+  }, [])
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
@@ -70,6 +80,7 @@ export function useVoice() {
     error,
     startListening,
     stopListening,
-    speak
+    speak,
+    readPage
   }
 }
