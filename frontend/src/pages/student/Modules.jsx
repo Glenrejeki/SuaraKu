@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { useVoice } from '../../hooks/useVoice';
 import { useAI } from '../../hooks/useAI';
 import VoiceButton from '../../components/VoiceButton';
+import StudentSidebar from '../../components/StudentSidebar';
 import AILoadingSkeleton from '../../components/AILoadingSkeleton';
 
 const StudentModules = () => {
@@ -27,7 +28,7 @@ const StudentModules = () => {
 
   useEffect(() => {
     fetchModules();
-    speak("Halaman Modul. Di sini kamu bisa membaca materi pelajaran. Ucapkan nama modul untuk membukanya.");
+    speak("Halaman Modul. Di sini kamu bisa membaca materi pelajaran.");
   }, [speak]);
 
   const fetchModules = async () => {
@@ -41,7 +42,7 @@ const StudentModules = () => {
     setAiLoading(true);
     try {
       const summary = await summarize(module.content);
-      setAiResult({ type: 'Ringkasan', text: summary });
+      setAiResult({ type: 'Ringkasan AI', text: summary });
       speak("Ini adalah ringkasan materinya: " + summary);
     } catch (err) {
       speak("Maaf, AI sedang sibuk. Coba lagi nanti.");
@@ -54,7 +55,7 @@ const StudentModules = () => {
     setAiLoading(true);
     try {
       const simplified = await simplify(module.content);
-      setAiResult({ type: 'Penjelasan Sederhana', text: simplified });
+      setAiResult({ type: 'Bahasa Sederhana', text: simplified });
       speak("Ini penjelasan yang lebih mudah: " + simplified);
     } catch (err) {
       speak("Gagal menyederhanakan teks.");
@@ -69,7 +70,7 @@ const StudentModules = () => {
       const found = modules.find(m => transcript.toLowerCase().includes(m.title.toLowerCase()));
       if (found) {
         setSelectedModule(found);
-        speak(`Membuka modul ${found.title}. Kamu mau aku ringkaskan atau jelaskan lebih mudah?`);
+        speak(`Membuka modul ${found.title}.`);
       }
     }
     if (command === 'SUMMARIZE' && selectedModule) handleSummarize(selectedModule);
@@ -77,111 +78,125 @@ const StudentModules = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-32">
-      <header className="bg-white border-b border-slate-100 px-6 py-6 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto flex items-center gap-4">
-          <button onClick={() => window.history.back()} className="text-slate-400 hover:text-purple-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
-          <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight">Materi Pelajaran</h1>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#FAFAFA] flex font-sans selection:bg-indigo-100">
+      <StudentSidebar />
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
-        <div className="grid md:grid-cols-3 gap-8">
+      <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto">
+        <header className="mb-12">
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Materi Modul</h2>
+          <p className="text-slate-500 font-medium text-sm mt-1">Pelajari berbagai materi menarik dengan bantuan AI.</p>
+        </header>
+
+        <div className="grid lg:grid-cols-12 gap-8">
           {/* Module List */}
-          <div className="md:col-span-1 space-y-4">
-            <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Daftar Modul</h2>
-            {loading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map(i => <div key={i} className="h-20 bg-white rounded-3xl animate-pulse" />)}
-              </div>
-            ) : (
-              modules.map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => {
-                    setSelectedModule(m);
-                    setAiResult({ type: null, text: '' });
-                    speak(`Membuka ${m.title}`);
-                  }}
-                  className={`w-full text-left p-5 rounded-3xl border-2 transition-all ${selectedModule?.id === m.id ? 'bg-purple-600 border-purple-600 text-white shadow-lg' : 'bg-white border-slate-100 text-slate-700 hover:border-purple-200 shadow-sm'}`}
-                >
-                  <p className="font-bold">{m.title}</p>
-                  <p className={`text-[10px] font-black uppercase tracking-tighter mt-1 ${selectedModule?.id === m.id ? 'text-purple-200' : 'text-slate-400'}`}>Tersedia via AI</p>
-                </button>
-              ))
-            )}
+          <div className="lg:col-span-4 space-y-4">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-2 mb-4">Daftar Modul</h3>
+            <div className="space-y-3">
+              {loading ? (
+                [1, 2, 3].map(i => <div key={i} className="h-20 bg-white rounded-2xl border border-slate-100 animate-pulse" />)
+              ) : (
+                modules.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      setSelectedModule(m);
+                      setAiResult({ type: null, text: '' });
+                      speak(`Membuka ${m.title}`);
+                    }}
+                    className={`w-full text-left p-6 rounded-3xl border-2 transition-all duration-300 group ${
+                      selectedModule?.id === m.id
+                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100'
+                      : 'bg-white border-slate-50 text-slate-700 hover:border-indigo-100 shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-colors ${selectedModule?.id === m.id ? 'bg-white/20' : 'bg-indigo-50 text-indigo-600'}`}>
+                        📚
+                      </div>
+                      <div>
+                        <p className="font-bold tracking-tight">{m.title}</p>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${selectedModule?.id === m.id ? 'text-indigo-200' : 'text-slate-400'}`}>
+                          Modul Pembelajaran
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
           </div>
 
           {/* Module Content */}
-          <div className="md:col-span-2">
+          <div className="lg:col-span-8">
             <AnimatePresence mode="wait">
               {selectedModule ? (
                 <motion.div
                   key={selectedModule.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
                   className="space-y-6"
                 >
-                  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4">
-                      <span className="text-4xl opacity-10 grayscale">📚</span>
-                    </div>
-                    <h2 className="text-3xl font-black text-slate-900 mb-6">{selectedModule.title}</h2>
-                    <div className="prose prose-purple max-w-none text-slate-600 font-medium leading-relaxed">
+                  <div className="bg-white p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
+                    <h2 className="text-3xl font-bold text-slate-900 mb-8 tracking-tight">{selectedModule.title}</h2>
+                    <div className="prose prose-indigo max-w-none text-slate-600 font-medium leading-relaxed">
                       {selectedModule.content}
                     </div>
 
-                    <div className="mt-8 pt-8 border-t border-slate-50 flex flex-wrap gap-4">
+                    <div className="mt-12 pt-8 border-t border-slate-50 flex flex-wrap gap-3">
                       <button
                         onClick={() => handleSummarize(selectedModule)}
-                        className="px-6 py-3 bg-purple-50 text-purple-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-purple-100 transition-colors"
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center gap-2"
                       >
-                        ✨ Ringkas dengan AI
+                        <span className="text-lg">✨</span> Ringkas AI
                       </button>
                       <button
                         onClick={() => handleSimplify(selectedModule)}
-                        className="px-6 py-3 bg-green-50 text-green-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-100 transition-colors"
+                        className="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
                       >
-                        🌱 Jelaskan Lebih Mudah
+                        <span className="text-lg">🌱</span> Bahasa Sederhana
                       </button>
                     </div>
                   </div>
 
-                  {aiLoading && <AILoadingSkeleton />}
+                  {aiLoading && (
+                    <div className="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                      <AILoadingSkeleton />
+                    </div>
+                  )}
 
                   {aiResult.text && !aiLoading && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-[2.5rem] border border-purple-100 shadow-inner"
+                      className="bg-indigo-600 p-8 md:p-10 rounded-3xl text-white shadow-xl shadow-indigo-100 relative overflow-hidden"
                     >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-xl">🤖</div>
-                        <h3 className="text-sm font-black text-purple-700 uppercase tracking-widest">{aiResult.type}</h3>
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-xl">🤖</div>
+                          <h3 className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">{aiResult.type}</h3>
+                        </div>
+                        <p className="text-lg font-medium leading-relaxed">{aiResult.text}</p>
                       </div>
-                      <p className="text-lg text-slate-700 font-bold leading-relaxed">{aiResult.text}</p>
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                     </motion.div>
                   )}
                 </motion.div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100 opacity-50">
-                  <span className="text-6xl mb-6">👈</span>
-                  <p className="text-xl font-bold text-slate-400 italic">Pilih modul di sebelah kiri untuk mulai belajar</p>
+                <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-12 bg-white rounded-3xl border border-slate-100 shadow-sm border-dashed">
+                  <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">👈</div>
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight">Pilih Modul</h3>
+                  <p className="text-slate-400 font-medium mt-2 max-w-xs mx-auto">Klik salah satu modul di samping untuk mulai membaca materi.</p>
                 </div>
               )}
             </AnimatePresence>
           </div>
         </div>
-      </main>
 
-      <footer className="py-8 text-center text-slate-400 text-sm">
-        <p>© 2025 SuaraKu. Developed by Christian Johannes Hutahaean & Glen Rejeki Sitorus</p>
-      </footer>
+        <footer className="mt-20 pt-10 border-t border-slate-100 text-center">
+          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.4em] mb-4">&copy; 2025 SuaraKu Platform</p>
+        </footer>
+      </main>
 
       <VoiceButton commands={moduleCommands} onCommandMatch={handleCommand} />
     </div>

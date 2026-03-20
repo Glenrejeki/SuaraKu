@@ -6,6 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import XPBar from '../../components/XPBar';
 import StreakBadge from '../../components/StreakBadge';
 import VoiceButton from '../../components/VoiceButton';
+import StudentSidebar from '../../components/StudentSidebar';
 import { supabase } from '../../lib/supabase';
 
 const StudentDashboard = () => {
@@ -91,55 +92,10 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex font-sans selection:bg-indigo-100">
-      {/* Sidebar */}
-      <aside className="w-72 bg-white border-r border-slate-100 p-8 hidden lg:flex flex-col sticky top-0 h-screen">
-        <div className="mb-12">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">Suara<span className="text-indigo-600">Ku</span></span>
-          </div>
-        </div>
-
-        <nav className="space-y-1.5 flex-1">
-          {[
-            { label: 'Beranda', icon: '🏠', path: '/student/dashboard', active: true },
-            { label: 'Tugas Saya', icon: '📝', path: '/student/tasks' },
-            { label: 'Materi Modul', icon: '📚', path: '/student/modules' },
-            { label: 'Kolaborasi', icon: '👥', path: '/student/collaboration' },
-            { label: 'Tanya AI', icon: '🤖', path: '/student/playground' },
-          ].map((item, i) => (
-            <Link
-              key={i}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${
-                item.active
-                ? 'bg-indigo-50 text-indigo-600'
-                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span> {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="pt-6 border-t border-slate-100">
-          <button
-            onClick={() => navigate('/profile')}
-            className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-all group"
-          >
-            <div className="w-10 h-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">
-              {profile?.full_name?.[0] || 'S'}
-            </div>
-            <div className="text-left overflow-hidden">
-              <p className="text-sm font-bold text-slate-900 truncate">{profile?.full_name?.split(' ')[0]}</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Siswa</p>
-            </div>
-          </button>
-        </div>
-      </aside>
+      <StudentSidebar />
 
       {/* Main Content */}
-      <main className="flex-1 p-6 md:p-10 lg:p-12">
+      <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-y-auto">
         <header className="flex lg:hidden justify-between items-center mb-8">
            <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
@@ -289,8 +245,8 @@ const StudentDashboard = () => {
           </div>
         </motion.div>
 
-        <footer className="mt-16 text-center">
-          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em] mb-4">&copy; 2025 SuaraKu Team</p>
+        <footer className="mt-16 pt-10 border-t border-slate-100 text-center">
+          <p className="text-[10px] font-bold text-slate-300 uppercase tracking-[0.4em] mb-4">&copy; 2025 SuaraKu Platform</p>
         </footer>
       </main>
 
