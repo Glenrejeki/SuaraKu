@@ -4,25 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eda5c7ed-3599-4636-bcf6-9682598eb62c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/ParentSidebar.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/StudentSidebar.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/TeacherSidebar.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Profile/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Profile/index.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/parent/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/parent/Chat.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/parent/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/parent/Dashboard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Collaboration.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Collaboration.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Dashboard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Modules.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Modules.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Playground.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Playground.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/TaskDetail.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/TaskDetail.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Tasks.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Tasks.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Chat.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/CreateTask.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/CreateTask.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Dashboard.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/UploadModule.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/UploadModule.jsx" afterDir="false" />
-    </list>
+    <list default="true" id="eda5c7ed-3599-4636-bcf6-9682598eb62c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
