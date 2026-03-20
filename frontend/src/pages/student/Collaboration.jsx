@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { useVoice } from '../../hooks/useVoice';
 import VoiceButton from '../../components/VoiceButton';
+import StudentSidebar from '../../components/StudentSidebar';
 
 const StudentCollaboration = () => {
   const { profile } = useAuthStore();
@@ -14,17 +15,17 @@ const StudentCollaboration = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newMessage, setNewMessage] = useState('');
   const scrollRef = useRef(null);
 
   const collabCommands = {
     'BACK': ['kembali', 'dashboard', 'keluar'],
     'SELECT_GROUP': ['pilih kelompok', 'buka kelompok', 'masuk kelompok'],
-    'VOICE_CHAT': ['kirim suara', 'pesan suara'],
   };
 
   useEffect(() => {
     fetchGroups();
-    speak("Halaman Kolaborasi. Pilih kelompok belajar kamu untuk berdiskusi dengan teman.");
+    speak("Halaman Kolaborasi. Pilih kelompok belajar kamu.");
   }, [speak]);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ const StudentCollaboration = () => {
   }, [selectedGroup]);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
   const fetchGroups = async () => {
@@ -65,6 +66,19 @@ const StudentCollaboration = () => {
     if (data) setMessages(data);
   };
 
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedGroup) return;
+
+    const { error } = await supabase.from('group_messages').insert({
+      group_id: selectedGroup.id,
+      sender_id: profile.id,
+      content: newMessage
+    });
+
+    if (!error) setNewMessage('');
+  };
+
   const handleCommand = (command, transcript) => {
     if (command === 'BACK') navigate('/student/dashboard');
     if (command === 'SELECT_GROUP') {
@@ -74,76 +88,108 @@ const StudentCollaboration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex h-screen overflow-hidden">
-      {/* Sidebar List Kelompok */}
-      <aside className="w-80 bg-white border-r border-slate-100 flex flex-col">
-        <div className="p-6 border-b border-slate-50">
-          <button onClick={() => navigate('/student/dashboard')} className="text-slate-400 hover:text-purple-600 font-bold text-xs uppercase tracking-widest mb-4">
-            ← Dashboard
-          </button>
-          <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Kelompok Belajar</h2>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          {groups.map(group => (
-            <button
-              key={group.id}
-              onClick={() => setSelectedGroup(group)}
-              className={`w-full p-6 text-left border-b border-slate-50 transition-all ${selectedGroup?.id === group.id ? 'bg-purple-600 text-white' : 'hover:bg-slate-50 text-slate-700'}`}
-            >
-              <p className="font-black">{group.name}</p>
-              <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${selectedGroup?.id === group.id ? 'text-purple-200' : 'text-slate-400'}`}>Klik untuk masuk</p>
-            </button>
-          ))}
-          {groups.length === 0 && !loading && (
-            <div className="p-10 text-center opacity-40">
-              <p className="text-sm font-bold italic">Belum ada kelompok belajar.</p>
-            </div>
-          )}
-        </div>
-      </aside>
+    <div className="min-h-screen bg-[#FAFAFA] flex font-sans selection:bg-indigo-100">
+      <StudentSidebar />
 
-      {/* Area Chat Kelompok */}
-      <main className="flex-1 flex flex-col bg-white relative">
-        {selectedGroup ? (
-          <>
-            <header className="p-6 border-b border-slate-50 flex justify-between items-center">
-              <div>
-                <h3 className="font-black text-slate-900 uppercase tracking-widest text-sm">{selectedGroup.name}</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Diskusi Teman Seperjuangan</p>
-              </div>
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200" />)}
-              </div>
-            </header>
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+        <header className="px-10 py-6 border-b border-slate-100 bg-white/80 backdrop-blur-md flex items-center justify-between shrink-0">
+           <div>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Kolaborasi</h2>
+              <p className="text-slate-500 font-medium text-xs mt-1">Belajar dan berdiskusi bersama teman sekelas.</p>
+           </div>
+           {selectedGroup && (
+             <div className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-indigo-100">
+                Kelompok: {selectedGroup.name}
+             </div>
+           )}
+        </header>
 
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/20">
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex flex-col ${msg.sender_id === profile.id ? 'items-end' : 'items-start'}`}>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter mb-1 ml-1">
-                    {msg.profiles?.full_name}
-                  </span>
-                  <div className={`max-w-[70%] p-5 rounded-[2rem] font-bold shadow-sm ${msg.sender_id === profile.id ? 'bg-purple-600 text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'}`}>
-                    {msg.content}
-                  </div>
-                </div>
+        <div className="flex-1 flex overflow-hidden">
+          {/* Group List */}
+          <div className="w-80 border-r border-slate-100 bg-white overflow-y-auto shrink-0 p-6 space-y-4">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-2 mb-4">Kelompok Saya</h3>
+            <div className="space-y-2">
+              {groups.map(group => (
+                <button
+                  key={group.id}
+                  onClick={() => {
+                    setSelectedGroup(group);
+                    speak(`Membuka ${group.name}`);
+                  }}
+                  className={`w-full p-5 text-left rounded-2xl transition-all duration-300 group ${selectedGroup?.id === group.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-50 text-slate-700'}`}
+                >
+                  <p className="font-bold tracking-tight text-sm">{group.name}</p>
+                  <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${selectedGroup?.id === group.id ? 'text-indigo-200' : 'text-slate-400'}`}>
+                    Klik untuk masuk
+                  </p>
+                </button>
               ))}
+              {groups.length === 0 && !loading && (
+                <div className="py-12 text-center opacity-40">
+                  <p className="text-xs font-bold italic">Belum ada kelompok belajar.</p>
+                </div>
+              )}
             </div>
-
-            <footer className="p-8 text-center text-[10px] text-slate-300 font-medium">
-              © 2025 SuaraKu. Developed by Christian Johannes Hutahaean & Glen Rejeki Sitorus
-            </footer>
-          </>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center opacity-20">
-            <span className="text-9xl mb-8">👥</span>
-            <p className="text-2xl font-black uppercase tracking-widest">Pilih kelompok belajarmu</p>
           </div>
-        )}
+
+          {/* Chat Area */}
+          <div className="flex-1 flex flex-col bg-slate-50/30 relative overflow-hidden">
+            {selectedGroup ? (
+              <>
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-10 space-y-6">
+                  <AnimatePresence initial={false}>
+                    {messages.map((msg, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`flex flex-col ${msg.sender_id === profile.id ? 'items-end' : 'items-start'}`}
+                      >
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">
+                          {msg.profiles?.full_name || 'Teman'}
+                        </span>
+                        <div className={`max-w-[70%] p-4 rounded-3xl text-sm font-medium shadow-sm ${msg.sender_id === profile.id ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'}`}>
+                          {msg.content}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+
+                <div className="p-8 bg-white border-t border-slate-100">
+                   <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-3">
+                      <input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder="Tulis pesan ke kelompok..."
+                        className="flex-1 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-medium text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm"
+                      />
+                      <button
+                        type="submit"
+                        disabled={!newMessage.trim()}
+                        className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 disabled:shadow-none"
+                      >
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                         </svg>
+                      </button>
+                   </form>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-20 opacity-30">
+                <div className="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-[2.5rem] flex items-center justify-center text-5xl mb-8">👥</div>
+                <h3 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Pilih Kelompok</h3>
+                <p className="text-sm font-medium mt-2 max-w-xs mx-auto text-slate-500">Pilih salah satu kelompok di samping untuk mulai berdiskusi dengan teman-temanmu.</p>
+              </div>
+            )}
+          </div>
+        </div>
 
         <VoiceButton
           commands={collabCommands}
           onCommandMatch={handleCommand}
-          customText={selectedGroup ? `Bicara di ${selectedGroup.name}...` : 'Pilih Kelompok...'}
         />
       </main>
     </div>
