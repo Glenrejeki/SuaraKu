@@ -35,7 +35,7 @@ serve(async (req) => {
 
     const { message, kelas, nama } = await req.json();
 
-    const TUTOR_PROMPT = `Kamu adalah Kak Bintang, asisten belajar yang ramah untuk anak SD.
+    const TUTOR_PROMPT = `Kamu adalah Kak SuaraKu, asisten belajar yang ramah untuk anak SD.
     
 Informasi siswa:
 - Nama: ${nama || 'Teman'}
@@ -78,7 +78,7 @@ Aturan:
     }
 
     const groqData = await groqResponse.json();
-    const reply = groqData.choices?.[0]?.message?.content ?? "Maaf, Kak Bintang sedang tidak bisa menjawab. Coba tanya lagi nanti ya! 😊";
+    const reply = groqData.choices?.[0]?.message?.content ?? "Maaf, Kak SuaraKu sedang tidak bisa menjawab. Coba tanya lagi nanti ya! 😊";
 
     return new Response(JSON.stringify({ reply }), {
       status: 200,
@@ -89,7 +89,7 @@ Aturan:
     console.error("AI Tutor Error:", error.message);
     return new Response(JSON.stringify({ 
       error: error.message,
-      reply: "Waduh, Kak Bintang lagi istirahat sebentar. Coba lagi nanti ya! 😊" 
+      reply: "Waduh, Kak SuaraKu lagi istirahat sebentar. Coba lagi nanti ya! 😊"
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

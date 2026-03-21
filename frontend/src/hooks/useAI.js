@@ -6,12 +6,12 @@ export function useAI() {
   const { profile } = useAuthStore()
 
   /**
-   * Fitur Tanya AI (Chat dengan Kak Bintang)
+   * Fitur Tanya AI (Chat dengan Kak SuaraKu)
    * Menggunakan Edge Function 'ai-tutor'
    */
   const askTutor = async (question) => {
     if (!question || !question.trim()) {
-      return { answer: "Halo! Ada yang bisa Kak Bintang bantu? 😊" }
+      return { answer: "Halo! Ada yang bisa Kak SuaraKu bantu? 😊" }
     }
 
     try {
@@ -30,7 +30,7 @@ export function useAI() {
         throw error
       }
 
-      const answer = data?.reply ?? "Maaf, Kak Bintang sedang tidak bisa menjawab. Coba tanya lagi nanti ya! 😊"
+      const answer = data?.reply ?? "Maaf, Kak SuaraKu sedang tidak bisa menjawab. Coba tanya lagi nanti ya! 😊"
 
       // Simpan log ke Supabase (opsional)
       try {
@@ -50,7 +50,7 @@ export function useAI() {
 
     } catch (error) {
       console.error("AI Error details:", error)
-      let userMessage = "Waduh, Kak Bintang lagi istirahat sebentar. Coba lagi nanti ya! 😊"
+      let userMessage = "Waduh, Kak SuaraKu lagi istirahat sebentar. Coba lagi nanti ya! 😊"
 
       if (error.message?.includes("Failed to fetch") || error.message?.includes("network")) {
         userMessage = "Koneksi internet sedang bermasalah. Periksa koneksi internetmu ya! 😊"
@@ -88,7 +88,7 @@ export function useAI() {
 
     } catch (error) {
       console.error("Summarize Error details:", error)
-      return "Waduh, Kak Bintang kesulitan membaca modul ini. Coba lagi nanti ya! 😊"
+      return "Waduh, Kak SuaraKu kesulitan membaca modul ini. Coba lagi nanti ya! 😊"
     }
   }
 

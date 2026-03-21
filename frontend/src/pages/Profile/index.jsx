@@ -117,7 +117,7 @@ const Profile = () => {
           >
              <div>
                <h3 className="text-xl font-bold text-slate-900 tracking-tight">Informasi Profil</h3>
-               <p className="text-sm text-slate-500 mt-1">Data identitas Anda di platform BintangAi.</p>
+               <p className="text-sm text-slate-500 mt-1">Data identitas Anda di platform SuaraKu.</p>
              </div>
 
              <div className="grid md:grid-cols-2 gap-8">
@@ -136,7 +136,7 @@ const Profile = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Peran Akun</label>
                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl font-bold text-indigo-600 capitalize">
-                    {profile?.role} BintangAi
+                    {profile?.role} SuaraKu
                   </div>
                 </div>
                 {profile?.role === 'siswa' && (

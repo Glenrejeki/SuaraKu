@@ -8,20 +8,20 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'BintangAi',
-        short_name: 'BintangAi',
+        name: 'SuaraKu',
+        short_name: 'SuaraKu',
         description: 'Platform Belajar Berbasis AI untuk Siswa Berkebutuhan Khusus',
         theme_color: '#4F46E5',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {
-            src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="%234F46E5"/><text x="50%" y="52%" dominant-baseline="central" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="black" font-size="120">B</text></svg>',
+            src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="%234F46E5"/><text x="50%" y="52%" dominant-baseline="central" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="black" font-size="120">S</text></svg>',
             sizes: '192x192',
             type: 'image/svg+xml'
           },
           {
-            src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="%234F46E5"/><text x="50%" y="52%" dominant-baseline="central" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="black" font-size="320">B</text></svg>',
+            src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="%234F46E5"/><text x="50%" y="52%" dominant-baseline="central" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="black" font-size="320">S</text></svg>',
             sizes: '512x512',
             type: 'image/svg+xml'
           }

@@ -24,7 +24,7 @@ const Auth = () => {
 
   useEffect(() => {
     setMessage(null);
-    speak(isLogin ? "Silakan masuk ke akun BintangAi kamu." : "Silakan daftar akun baru di BintangAi.");
+    speak(isLogin ? "Silakan masuk ke akun SuaraKu kamu." : "Silakan daftar akun baru di SuaraKu.");
   }, [isLogin]);
 
   // Reset disability type if role is not student
@@ -164,9 +164,9 @@ const Auth = () => {
             className="flex items-center gap-2 cursor-pointer group w-fit"
           >
             <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-              <span className="text-white font-bold text-xl">B</span>
+              <span className="text-white font-bold text-xl">S</span>
             </div>
-            <span className="text-2xl font-bold tracking-tight text-slate-900">Bintang<span className="text-indigo-600">Ai</span></span>
+            <span className="text-2xl font-bold tracking-tight text-slate-900">Suara<span className="text-indigo-600">Ku</span></span>
           </div>
 
           <motion.div
@@ -184,7 +184,7 @@ const Auth = () => {
           </motion.div>
 
           <div className="text-sm text-slate-600 font-bold">
-            @2026 BintangAi.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
+            @2026 SuaraKu.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
           </div>
         </div>
       </div>
@@ -197,8 +197,8 @@ const Auth = () => {
         >
           <div className="lg:hidden text-center mb-10">
             <div className="inline-flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">B</div>
-              <span className="text-2xl font-bold tracking-tight text-slate-900">Bintang<span className="text-indigo-600">Ai</span></span>
+              <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">S</div>
+              <span className="text-2xl font-bold tracking-tight text-slate-900">Suara<span className="text-indigo-600">Ku</span></span>
             </div>
           </div>
 
@@ -207,7 +207,7 @@ const Auth = () => {
               {isLogin ? 'Selamat Datang' : 'Bergabung Sekarang'}
             </h1>
             <p className="text-slate-500 font-medium text-lg">
-              {isLogin ? 'Masuk untuk melanjutkan belajar.' : 'Mulai perjalanan belajarmu di BintangAi.'}
+              {isLogin ? 'Masuk untuk melanjutkan belajar.' : 'Mulai perjalanan belajarmu di SuaraKu.'}
             </p>
           </div>
 
@@ -264,7 +264,7 @@ const Auth = () => {
                   >
                     {showPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523(0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
                       </svg>
                     ) : (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">

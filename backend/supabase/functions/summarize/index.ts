@@ -35,7 +35,7 @@ serve(async (req) => {
 
     const { content, grade_level } = await req.json();
 
-    const SUMMARIZE_PROMPT = `Kamu adalah Kak Bintang, asisten belajar SD.
+    const SUMMARIZE_PROMPT = `Kamu adalah Kak SuaraKu, asisten belajar SD.
 Tugasmu adalah meringkas materi modul menjadi poin-poin yang sangat sederhana untuk anak kelas ${grade_level || 'SD'}.
 Gunakan bahasa yang ceria dan banyak emoji. Maksimal 5 poin ringkasan.
 Setiap poin harus:
@@ -73,7 +73,7 @@ ${Array.from({ length: 5 }, (_, i) => `${i+1}. [Poin dengan emoji]`).join('\n')}
     }
 
     const groqData = await groqResponse.json();
-    const summary = groqData.choices?.[0]?.message?.content ?? "📚 **Maaf, Kak Bintang sedang tidak bisa meringkas materi. Coba lagi nanti ya!** 😊";
+    const summary = groqData.choices?.[0]?.message?.content ?? "📚 **Maaf, Kak SuaraKu sedang tidak bisa meringkas materi. Coba lagi nanti ya!** 😊";
 
     return new Response(JSON.stringify({ summary }), {
       status: 200,
@@ -84,7 +84,7 @@ ${Array.from({ length: 5 }, (_, i) => `${i+1}. [Poin dengan emoji]`).join('\n')}
     console.error("Summarize Error:", error.message);
     return new Response(JSON.stringify({
       error: error.message,
-      summary: "Waduh, Kak Bintang kesulitan membaca modul ini. Coba lagi nanti ya! 😊"
+      summary: "Waduh, Kak SuaraKu kesulitan membaca modul ini. Coba lagi nanti ya! 😊"
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

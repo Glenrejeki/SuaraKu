@@ -78,7 +78,7 @@ const StudentTaskDetail = () => {
     setStarted(true);
     setCurrentStep(1);
     setAvatarState('happy');
-    const msg = `Semangat ya! Ada ${questions.length} tantangan yang harus kamu selesaikan. Kak Bintang yakin kamu bisa!`;
+    const msg = `Semangat ya! Ada ${questions.length} tantangan yang harus kamu selesaikan. Kak SuaraKu yakin kamu bisa!`;
     speak(msg);
     setTimeout(() => setAvatarState('idle'), 3000);
   };
@@ -223,7 +223,7 @@ const StudentTaskDetail = () => {
 
               <div className="lg:col-span-2 space-y-8">
                  <div className="flex items-center gap-4 px-4">
-                    <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase tracking-widest">Ulasan Kak Bintang 🤖</h3>
+                    <h3 className="text-xl font-black text-slate-900 tracking-tighter uppercase tracking-widest">Ulasan Kak SuaraKu 🤖</h3>
                     <div className="flex-1 h-[2px] bg-slate-100" />
                  </div>
 
@@ -270,7 +270,7 @@ const StudentTaskDetail = () => {
                                    <BintangAvatar state={studentAns?.is_correct ? 'happy' : 'speaking'} size="sm" />
                                 </div>
                                 <div className="z-10">
-                                   <p className="text-[9px] font-black text-indigo-200 uppercase tracking-widest mb-2">Penjelasan Kak Bintang</p>
+                                   <p className="text-[9px] font-black text-indigo-200 uppercase tracking-widest mb-2">Penjelasan Kak SuaraKu</p>
                                    <p className="text-[13px] font-bold leading-relaxed italic opacity-95">
                                      {q.ai_explanation || "Wah, bagian ini seru ya! Terus pelajari agar makin paham!"}
                                    </p>
@@ -288,7 +288,7 @@ const StudentTaskDetail = () => {
 
         <footer className="py-12 border-t border-slate-100 text-center relative z-10 bg-white/50 backdrop-blur-sm mt-auto">
           <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 opacity-80">
-            @2026 Suaraku.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
+            @2026 SuaraKu.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
           </p>
         </footer>
       </div>

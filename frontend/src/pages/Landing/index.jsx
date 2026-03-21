@@ -10,7 +10,7 @@ const Landing = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      speak("Selamat datang di BintangAi. Platform course berbasis AI. Silakan klik tombol mulai atau ucapkan masuk.");
+      speak("Selamat datang di SuaraKu. Platform course berbasis AI. Silakan klik tombol mulai atau ucapkan masuk.");
     }, 1000);
     return () => clearTimeout(timer);
   }, [speak]);
@@ -47,24 +47,24 @@ const Landing = () => {
 
   const philosophy = [
     {
-      title: "⭐ “Bintang” = Setiap Anak Istimewa",
-      desc: "Setiap anak SLB (tunanetra, tunarungu, tunawicara) adalah bintang. Mereka punya potensi unik, hanya butuh cara belajar yang tepat.",
-      highlight: "Tidak ada anak yang kurang, semua bisa bersinar."
+      title: "⭐ “SuaraKu” = Suara Setiap Anak Berharga",
+      desc: "Setiap anak SLB (tunanetra, tunarungu, tunawicara) memiliki suara dan potensi unik yang perlu didengar dan didukung.",
+      highlight: "Memberikan suara bagi mereka yang terbatas dalam komunikasi."
     },
     {
-      title: "🌌 Tetap Bersinar di Kegelapan",
-      desc: "Relevan untuk Tunanetra & hambatan komunikasi. Walaupun ada keterbatasan, mereka tetap bisa “bersinar”.",
-      highlight: "Keterbatasan bukan penghalang untuk cahaya."
+      title: "🌌 Terang Melalui Suara",
+      desc: "Relevan untuk Tunanetra & hambatan komunikasi. Walaupun ada keterbatasan, teknologi suara membantu mereka tetap mandiri.",
+      highlight: "Suara adalah jendela pengetahuan bagi mereka."
     },
     {
       title: "🤖 AI = Pendamping Cerdas",
       desc: "AI membantu melalui suara (text-to-speech), visual (tunarungu), dan komunikasi (tunawicara).",
-      highlight: "AI adalah alat bantu setiap bintang untuk bercahaya."
+      highlight: "AI adalah alat bantu setiap anak untuk berkomunikasi dan belajar."
     },
     {
-      title: "🎓 BintangAI sebagai Course",
-      desc: "Bukan sekadar materi, tapi “jalan” agar anak berkembang, percaya diri, dan merasa mampu.",
-      highlight: "Setiap pembelajaran adalah langkah menuju masa depan."
+      title: "🎓 SuaraKu sebagai Platform",
+      desc: "Bukan sekadar materi, tapi platform yang memberikan kepercayaan diri melalui interaksi suara dan AI.",
+      highlight: "Setiap pembelajaran adalah langkah menuju kemandirian."
     }
   ];
 
@@ -74,9 +74,9 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">B</span>
+              <span className="text-white font-bold text-lg">S</span>
             </div>
-            <span className="text-xl font-bold tracking-tight">Bintang<span className="text-indigo-600">Ai</span></span>
+            <span className="text-xl font-bold tracking-tight">Suara<span className="text-indigo-600">Ku</span></span>
           </div>
           <button
             onClick={() => navigate('/auth')}
@@ -127,7 +127,7 @@ const Landing = () => {
             <button
               onClick={() => {
                 setShowAbout(true);
-                speak("Membuka informasi lengkap tentang BintangAi. Filosofi, Alur, dan Peran User.");
+                speak("Membuka informasi lengkap tentang SuaraKu. Filosofi, Alur, dan Peran User.");
               }}
               className="px-8 py-4 bg-white text-slate-600 font-semibold rounded-full border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 transition-all"
             >
@@ -184,7 +184,7 @@ const Landing = () => {
             >
               <div className="p-8 md:p-12 overflow-y-auto custom-scrollbar">
                 <header className="mb-12 text-center">
-                  <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">Tentang Bintang<span className="text-indigo-600">Ai</span></h2>
+                  <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">Tentang Suara<span className="text-indigo-600">Ku</span></h2>
                   <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Filosofi, Alur, dan Peran Pengguna</p>
                 </header>
 
@@ -193,7 +193,7 @@ const Landing = () => {
                   <section>
                     <div className="flex items-center gap-4 mb-8">
                       <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold">⭐</div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Makna BintangAi untuk SLB</h3>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Makna SuaraKu untuk SLB</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {philosophy.map((item, idx) => (
@@ -240,7 +240,7 @@ const Landing = () => {
                           <span className="w-6 h-6 rounded-lg bg-rose-100 flex items-center justify-center text-xs">🎓</span> Siswa
                         </h4>
                         <ul className="space-y-2">
-                          {['Voice Command', 'AI Summary', 'AI Kak Bintang', 'XP System'].map((f, i) => (
+                          {['Voice Command', 'AI Summary', 'AI Kak SuaraKu', 'XP System'].map((f, i) => (
                             <li key={i} className="text-[11px] font-bold text-slate-500 flex items-center gap-2">
                               <span className="text-rose-500 text-[10px]">✔</span> {f}
                             </li>
@@ -291,7 +291,7 @@ const Landing = () => {
 
       <footer className="py-12 px-6 text-center">
         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 opacity-80">
-          @2026 BintangAi.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
+          @2026 SuaraKu.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
         </p>
       </footer>
     </div>

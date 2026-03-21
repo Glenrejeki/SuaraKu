@@ -50,7 +50,7 @@ const Playground = () => {
 
   useEffect(() => {
     const welcome = isTunanetra
-      ? "Halo! Ini Ruang Bermain BintangAi. Sebutkan pertanyaanmu sekarang, aku siap membantu."
+      ? "Halo! Ini Ruang Bermain SuaraKu. Sebutkan pertanyaanmu sekarang, aku siap membantu."
       : isTunarungu
       ? "Halo! Selamat datang di Tanya AI. Silakan ketik pertanyaanmu di sini."
       : "Halo! Pilih simbol di papan untuk bertanya padaku.";
@@ -130,7 +130,7 @@ const Playground = () => {
           <div className="flex items-center gap-4">
              <BintangAvatar state={avatarState} size="sm" />
             <div>
-               <h1 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Tanya Kak Bintang</h1>
+               <h1 className="text-xl font-bold text-slate-900 tracking-tight uppercase">Tanya Kak SuaraKu</h1>
                <div className="flex items-center gap-2">
                  <div className={`w-2 h-2 rounded-full animate-pulse ${avatarState === 'thinking' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -188,7 +188,7 @@ const Playground = () => {
               >
                 {msg.role === 'ai' && (
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center shrink-0 mb-1 shadow-md border border-white/20">
-                    <span className="text-xs font-black text-white tracking-tighter">B</span>
+                    <span className="text-xs font-black text-white tracking-tighter">S</span>
                   </div>
                 )}
 
@@ -243,7 +243,7 @@ const Playground = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Tanyakan sesuatu pada Kak Bintang..."
+                  placeholder="Tanyakan sesuatu pada Kak SuaraKu..."
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -272,7 +272,7 @@ const Playground = () => {
              />
            </div>
            <p className="text-center text-[9px] font-black text-slate-400 mt-4 uppercase tracking-[0.2em] opacity-60">
-              Kak Bintang adalah asisten AI. Mohon dampingi anak saat belajar.
+              Kak SuaraKu adalah asisten AI. Mohon dampingi anak saat belajar.
            </p>
         </div>
       </main>

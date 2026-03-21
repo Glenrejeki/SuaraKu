@@ -59,9 +59,9 @@ const StudentModules = () => {
 
       setSelectedModule({ ...selectedModule, summary: summaryResult });
 
-      speak("Kak Bintang sudah merangkum materinya untukmu.");
+      speak("Kak SuaraKu sudah merangkum materinya untukmu.");
     } catch (err) {
-      speak("Maaf, Kak Bintang sedang lelah. Coba lagi nanti ya.");
+      speak("Maaf, Kak SuaraKu sedang lelah. Coba lagi nanti ya.");
     } finally {
       setAiLoading(false);
     }
@@ -177,7 +177,7 @@ const StudentModules = () => {
                       <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-8">
                           <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl">🤖</div>
-                          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Ringkasan Kak Bintang</h3>
+                          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Ringkasan Kak SuaraKu</h3>
                         </div>
 
                         {aiLoading ? (
@@ -205,7 +205,7 @@ const StudentModules = () => {
 
         <footer className="mt-24 py-10 border-t border-slate-100 text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 opacity-80">
-            @2026 BintangAi.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
+            @2026 SuaraKu.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
           </p>
         </footer>
       </main>
