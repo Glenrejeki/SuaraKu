@@ -10,7 +10,7 @@ import ConfettiEffect from '../../components/ConfettiEffect';
 const StudentQuiz = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { profile, updateXP } = useAuthStore();
+  const { profile, updateXP, fetchProfile } = useAuthStore();
   const { speak } = useVoice();
 
   const [quiz, setQuiz] = useState(null);
@@ -79,18 +79,25 @@ const StudentQuiz = () => {
 
   const finishQuiz = async () => {
     setFinished(true);
-    const finalScore = Math.round((score / questions.length) * 100);
     const xpGained = score * 30; // 30 XP per correct answer
 
+    // Simpan hasil kuis dengan XP yang didapat
     await supabase.from('quiz_results').insert({
       quiz_id: quiz.id,
       student_id: profile.id,
-      score: finalScore,
-      answers: { results: 'calculated' }
+      score: xpGained, // Simpan sebagai poin XP agar mudah diagregasi
+      answers: {
+        correct_count: score,
+        total_questions: questions.length,
+        percentage: Math.round((score / questions.length) * 100)
+      }
     });
 
-    await supabase.from('profiles').update({ xp: (profile.xp || 0) + xpGained }).eq('id', profile.id);
-    updateXP(xpGained);
+    // Update profile XP
+    await updateXP(xpGained);
+
+    // Sinkronisasi ulang data profil untuk memastikan total XP akurat
+    await fetchProfile(profile.id);
 
     speak(`Kuis selesai! Kamu benar ${score} dari ${questions.length} soal. Kamu dapat ${xpGained} poin XP!`);
   };
@@ -113,9 +120,9 @@ const StudentQuiz = () => {
           <span className="text-8xl mb-8 block">🏆</span>
           <h2 className="text-4xl font-black text-slate-900 mb-4">Kuis Selesai!</h2>
           <div className="bg-slate-50 p-8 rounded-[3rem] mb-8">
-            <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">Skor Kamu</p>
-            <p className="text-6xl font-black text-purple-600">{Math.round((score / questions.length) * 100)}</p>
-            <p className="mt-4 text-slate-600 font-bold">{score} Jawaban Benar</p>
+            <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">XP Kamu</p>
+            <p className="text-6xl font-black text-purple-600">+{score * 30}</p>
+            <p className="mt-4 text-slate-600 font-bold">{score} Jawaban Benar dari {questions.length}</p>
           </div>
           <button
             onClick={() => navigate('/student/dashboard')}

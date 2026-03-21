@@ -49,8 +49,8 @@ const ParentSidebar = ({ activeTab, onTabChange }) => {
           className="flex items-center gap-2 px-3 mb-12 cursor-pointer transition-transform active:scale-95"
           onClick={() => navigate('/')}
         >
-          <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">S</div>
-          <span className="text-lg font-bold tracking-tight text-slate-900">Suara<span className="text-indigo-600">Ku</span></span>
+          <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
+          <span className="text-lg font-bold tracking-tight text-slate-900">Bintang<span className="text-indigo-600">Ai</span></span>
         </div>
 
         {/* Menu Section */}
@@ -121,7 +121,7 @@ const ParentSidebar = ({ activeTab, onTabChange }) => {
             className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all group"
           >
             <div className="w-9 h-9 rounded-lg bg-indigo-900 text-white flex items-center justify-center font-bold text-xs shadow-lg shadow-indigo-100">
-              {profile?.full_name?.[0] || 'O'}
+              {profile?.full_name?.[0] || 'B'}
             </div>
             <div className="text-left overflow-hidden">
                <p className="text-xs font-bold text-slate-900 truncate">{profile?.full_name?.split(' ')[0]}</p>

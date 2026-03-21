@@ -21,6 +21,24 @@ const Profile = () => {
   const [message, setMessage] = useState(null);
   const [showId, setShowId] = useState(false);
 
+  useEffect(() => {
+    if (profile?.id) {
+      const fetchLatestProfile = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', profile.id)
+          .single();
+
+        if (data && !error) {
+          setProfile(data);
+        }
+      };
+
+      fetchLatestProfile();
+    }
+  }, [profile?.id, setProfile]);
+
   const handleLinkStudent = async () => {
     if (!studentIdInput || !studentPassword) return;
     setSaving(true);
@@ -99,7 +117,7 @@ const Profile = () => {
           >
              <div>
                <h3 className="text-xl font-bold text-slate-900 tracking-tight">Informasi Profil</h3>
-               <p className="text-sm text-slate-500 mt-1">Data identitas Anda di platform SuaraKu.</p>
+               <p className="text-sm text-slate-500 mt-1">Data identitas Anda di platform BintangAi.</p>
              </div>
 
              <div className="grid md:grid-cols-2 gap-8">
@@ -118,7 +136,7 @@ const Profile = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Peran Akun</label>
                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl font-bold text-indigo-600 capitalize">
-                    {profile?.role} SuaraKu
+                    {profile?.role} BintangAi
                   </div>
                 </div>
                 {profile?.role === 'siswa' && (
@@ -278,7 +296,6 @@ const Profile = () => {
     );
   };
 
-  // Tampilan Dashboard Layout (Guru, Siswa, Ortu)
   if (profile?.role === 'guru' || profile?.role === 'siswa' || profile?.role === 'ortu') {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex font-sans selection:bg-indigo-100">
@@ -309,7 +326,6 @@ const Profile = () => {
     );
   }
 
-  // Fallback (jika role tidak terdeteksi)
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
       <button onClick={() => { logout(); navigate('/auth'); }} className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold">

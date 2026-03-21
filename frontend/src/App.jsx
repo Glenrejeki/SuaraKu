@@ -13,6 +13,7 @@ import TeacherDashboard from './pages/teacher/Dashboard'
 import TeacherUploadModule from './pages/teacher/UploadModule'
 import TeacherCreateTask from './pages/teacher/CreateTask'
 import TeacherChat from './pages/teacher/Chat'
+import TeacherCollaboration from './pages/teacher/Collaboration'
 import ParentDashboard from './pages/parent/Dashboard'
 import ParentChat from './pages/parent/Chat'
 
@@ -38,6 +39,7 @@ function App() {
         <Route path="/teacher/upload" element={<TeacherUploadModule />} />
         <Route path="/teacher/create-task" element={<TeacherCreateTask />} />
         <Route path="/teacher/chat" element={<TeacherChat />} />
+        <Route path="/teacher/collaboration" element={<TeacherCollaboration />} />
 
         {/* Orang Tua */}
         <Route path="/parent/dashboard" element={<ParentDashboard />} />

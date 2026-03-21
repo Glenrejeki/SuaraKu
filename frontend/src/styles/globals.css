@@ -1,8 +1,8 @@
+@import './adaptive.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './adaptive.css';
 
 :root {
   --primary: #5B5BD6;
@@ -26,6 +26,10 @@ body {
 /* Custom Utilities */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .no-scrollbar {
   -ms-overflow-style: none;

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
+import TeacherSidebar from '../../components/TeacherSidebar';
 
 const TeacherChat = () => {
   const { profile } = useAuthStore();
@@ -84,19 +85,12 @@ const TeacherChat = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex font-sans selection:bg-indigo-100">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-[#F8FAFC] flex font-sans selection:bg-indigo-100">
+      <TeacherSidebar activeTab="" />
+
+      {/* Sidebar Pesan (Inner) */}
       <aside className="w-96 bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen overflow-hidden">
         <div className="p-8 border-b border-slate-50">
-           <button
-             onClick={() => navigate('/teacher/dashboard')}
-             className="flex items-center gap-2 text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-indigo-600 transition-colors mb-6"
-           >
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-             </svg>
-             Dashboard
-           </button>
            <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-6">Pesan Ortu</h1>
 
            <div className="relative">
@@ -138,7 +132,7 @@ const TeacherChat = () => {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col h-screen bg-white">
+      <main className="flex-1 flex flex-col h-screen bg-white overflow-hidden">
         {selectedConvo ? (
           <>
             <header className="px-10 py-6 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
@@ -156,7 +150,7 @@ const TeacherChat = () => {
                </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-10 space-y-6 bg-[#FAFAFA]/50">
+            <div className="flex-1 overflow-y-auto p-10 space-y-6 bg-[#F8FAFC]">
                <AnimatePresence initial={false}>
                   {messages.map((msg) => (
                     <motion.div
@@ -199,12 +193,18 @@ const TeacherChat = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-20 text-center">
+          <div className="flex-1 flex flex-col items-center justify-center p-20 text-center bg-[#F8FAFC]">
              <div className="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-[2.5rem] flex items-center justify-center text-4xl mb-8">💬</div>
              <h3 className="text-xl font-bold text-slate-900 tracking-tight">Pilih Percakapan</h3>
              <p className="text-slate-400 font-medium mt-2 max-w-xs text-sm">Pilih orang tua dari daftar di samping untuk mulai berkonsultasi mengenai perkembangan siswa.</p>
           </div>
         )}
+
+        <footer className="py-6 border-t border-slate-100 text-center bg-white">
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 opacity-80">
+            @2026 Suaraku.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
+          </p>
+        </footer>
       </main>
     </div>
   );
