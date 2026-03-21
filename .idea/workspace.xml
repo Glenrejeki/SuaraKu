@@ -4,7 +4,54 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eda5c7ed-3599-4636-bcf6-9682598eb62c" name="Changes" comment="" />
+    <list default="true" id="eda5c7ed-3599-4636-bcf6-9682598eb62c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/_shared/gemini.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/ai-tutor/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/010_update_collaboration.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/020_ai_tutor_schema.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/021_add_private_features.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/api/ask-tutor.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/keepAlive.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/BintangAvatar.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Collaboration.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/functions/ask-tutor/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/functions/ask-tutor/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/functions/get-insight/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/functions/get-insight/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/functions/simplify/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/functions/simplify/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/functions/summarize/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/functions/summarize/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ConfettiEffect.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ConfettiEffect.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ParentSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ParentSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/StudentSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/StudentSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/TeacherSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/TeacherSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/XPBar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/XPBar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/hooks/useAI.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/hooks/useAI.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/lib/supabase.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/lib/supabase.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Auth/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Auth/index.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Landing/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Landing/index.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Profile/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Profile/index.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/parent/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/parent/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Collaboration.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Collaboration.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Modules.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Modules.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Playground.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Playground.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Quiz.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Quiz.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/TaskDetail.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/TaskDetail.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Tasks.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Tasks.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Chat.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/CreateTask.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/CreateTask.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/UploadModule.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/UploadModule.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/store/authStore.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/authStore.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/styles/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,18 +63,6 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Glenrejeki"
-  }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Glenrejeki/SuaraKu.git",
-    "accountId": "847b2de2-4b1e-480d-a6bd-64683754fd84"
-  }
-}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -36,23 +71,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/DATA LOCAL DISK/Tugas Del/SEMESTER 6/SuaraKu",
-    "settings.editor.selected.configurable": "preferences.general"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/GitHub/SuaraKu&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.general&quot;
   }
-}]]></component>
+}</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="eda5c7ed-3599-4636-bcf6-9682598eb62c" name="Changes" comment="" />

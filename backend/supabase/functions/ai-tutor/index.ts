@@ -1,4 +1,4 @@
-// supabase/functions/summarize/index.js
+// supabase/functions/ai-tutor/index.js
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -11,9 +11,9 @@ const corsHeaders = {
 serve(async (req) => {
   // Handle CORS Preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, {
+    return new Response(null, { 
       status: 204,
-      headers: corsHeaders
+      headers: corsHeaders 
     });
   }
 
@@ -33,21 +33,26 @@ serve(async (req) => {
       throw new Error("GROQ_API_KEY is not set in Supabase Secrets");
     }
 
-    const { content, grade_level } = await req.json();
+    const { message, kelas, nama } = await req.json();
 
-    const SUMMARIZE_PROMPT = `Kamu adalah Kak Bintang, asisten belajar SD.
-Tugasmu adalah meringkas materi modul menjadi poin-poin yang sangat sederhana untuk anak kelas ${grade_level || 'SD'}.
-Gunakan bahasa yang ceria dan banyak emoji. Maksimal 5 poin ringkasan.
-Setiap poin harus:
-- Menggunakan kata-kata sederhana
-- Disertai emoji yang relevan
-- Mudah diingat
+    const TUTOR_PROMPT = `Kamu adalah Kak Bintang, asisten belajar yang ramah untuk anak SD.
+    
+Informasi siswa:
+- Nama: ${nama || 'Teman'}
+- Kelas: ${kelas || 1}
 
-Format ringkasan:
-📚 **RINGKASAN MATERI**
-${Array.from({ length: 5 }, (_, i) => `${i+1}. [Poin dengan emoji]`).join('\n')}
+Tugasmu:
+1. Gunakan bahasa yang sederhana, ceria, dan mudah dipahami
+2. Sertakan emoji yang sesuai untuk membuat pembelajaran menyenangkan
+3. Berikan contoh konkret yang relevan dengan kehidupan sehari-hari
+4. Jika siswa bingung, jelaskan dengan cara yang berbeda
+5. Selalu berikan semangat dan pujian
 
-✨ **Tips Belajar**: [1 tips sederhana]`;
+Aturan:
+- Jawab dengan ramah dan sabar
+- Hindari jargon yang rumit
+- Maksimal 3-4 kalimat per jawaban (kecuali jika diminta penjelasan panjang)
+- Gunakan nama siswa jika disebutkan`;
 
     const groqResponse = await fetch(GROQ_URL, {
       method: "POST",
@@ -58,11 +63,11 @@ ${Array.from({ length: 5 }, (_, i) => `${i+1}. [Poin dengan emoji]`).join('\n')}
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
-          { role: "system", content: SUMMARIZE_PROMPT },
-          { role: "user", content: `Ringkas materi berikut dengan format yang sudah ditentukan:\n\n${content}` },
+          { role: "system", content: TUTOR_PROMPT },
+          { role: "user", content: message },
         ],
         max_tokens: 500,
-        temperature: 0.5,
+        temperature: 0.7,
       }),
     });
 
@@ -73,18 +78,18 @@ ${Array.from({ length: 5 }, (_, i) => `${i+1}. [Poin dengan emoji]`).join('\n')}
     }
 
     const groqData = await groqResponse.json();
-    const summary = groqData.choices?.[0]?.message?.content ?? "📚 **Maaf, Kak Bintang sedang tidak bisa meringkas materi. Coba lagi nanti ya!** 😊";
+    const reply = groqData.choices?.[0]?.message?.content ?? "Maaf, Kak Bintang sedang tidak bisa menjawab. Coba tanya lagi nanti ya! 😊";
 
-    return new Response(JSON.stringify({ summary }), {
+    return new Response(JSON.stringify({ reply }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (error) {
-    console.error("Summarize Error:", error.message);
-    return new Response(JSON.stringify({
+    console.error("AI Tutor Error:", error.message);
+    return new Response(JSON.stringify({ 
       error: error.message,
-      summary: "Waduh, Kak Bintang kesulitan membaca modul ini. Coba lagi nanti ya! 😊"
+      reply: "Waduh, Kak Bintang lagi istirahat sebentar. Coba lagi nanti ya! 😊" 
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

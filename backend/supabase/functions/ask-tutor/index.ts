@@ -1,40 +1,40 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders } from '../_shared/cors.ts';
-import { getCachedResponse, setCachedResponse } from '../_shared/cache.ts';
-import { callHuggingFace } from '../_shared/huggingface.ts';
+import { callGemini } from '../_shared/gemini.ts';
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    const { question, context } = await req.json();
-    if (!question) throw new Error('Missing question');
+    const { question, context, user_profile } = await req.json();
 
-    const fullPrompt = context
-      ? `Konteks: ${context}\nPertanyaan: ${question}\nJawab dengan penjelasan sederhana:`
-      : `Pertanyaan: ${question}\nJawab dengan penjelasan sederhana:`;
+    if (!question) throw new Error('Pertanyaan tidak boleh kosong.');
 
-    const model = 'google/flan-t5-base';
-    const cached = await getCachedResponse(fullPrompt, model);
-    if (cached) {
-      return new Response(JSON.stringify({ answer: cached, fromCache: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const systemRole = `Kamu adalah SuaraKu AI, tutor pendamping belajar SD yang sangat sabar dan ramah.
+Siswa ini memiliki kebutuhan khusus: ${user_profile?.disability_type || 'Umum'} dan berada di kelas ${user_profile?.grade_level || 'SD'}.
+Jelaskan dengan bahasa anak-anak yang sangat sederhana. Jika matematika, tunjukkan langkahnya.`;
 
-    const result = await callHuggingFace(model, fullPrompt);
-    const answer = Array.isArray(result) ? result[0]?.generated_text : result.generated_text;
+    const fullPrompt = `${systemRole}\nKonteks materi: ${context || 'Umum'}\nPertanyaan Siswa: ${question}`;
 
-    await setCachedResponse(fullPrompt, model, answer);
+    const answer = await callGemini(fullPrompt, {
+      maxTokens: 500,
+      temperature: 0.7
+    });
 
-    return new Response(JSON.stringify({ answer, fromCache: false }), {
+    return new Response(JSON.stringify({
+      answer: answer || "Aku belum bisa menjawab itu, coba tanya hal lain ya!",
+      topic: "Umum"
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
+    console.error("Function Error:", error.message);
+    return new Response(JSON.stringify({
+      error: error.message,
+      answer: "Ada kendala teknis di server. Pak Guru sedang memperbaikinya!"
+    }), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 
@@ -50,6 +50,7 @@ const TeacherSidebar = ({ activeTab, onTabChange }) => {
   };
 
   const isChatActive = location.pathname === '/teacher/chat';
+  const isCollabActive = location.pathname === '/teacher/collaboration';
 
   return (
     <aside className="w-64 bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen shrink-0 z-40 hidden lg:flex">
@@ -59,14 +60,14 @@ const TeacherSidebar = ({ activeTab, onTabChange }) => {
           className="flex items-center gap-2 px-3 mb-12 cursor-pointer transition-transform active:scale-95"
           onClick={() => navigate('/')}
         >
-          <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">S</div>
-          <span className="text-lg font-bold tracking-tight text-slate-900">Suara<span className="text-indigo-600">Ku</span></span>
+          <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
+          <span className="text-lg font-bold tracking-tight text-slate-900">Bintang<span className="text-indigo-600">Ai</span></span>
         </div>
 
         {/* Menu Section */}
         <div className="flex-1 space-y-8">
           <div>
-            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Dashboard</p>
+            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Dashboard Guru</p>
             <div className="space-y-1">
               {menuItems.map((item) => {
                 const isActive = location.pathname === '/teacher/dashboard' && activeTab === item.id;
@@ -80,13 +81,13 @@ const TeacherSidebar = ({ activeTab, onTabChange }) => {
                         : 'text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <span className={`transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
+                    <span className={`transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-50'}`}>
                       {item.icon}
                     </span>
                     {item.label}
                     {isActive && (
                       <motion.div
-                        layoutId="active-nav-bg"
+                        layoutId="active-nav-bg-teacher"
                         className="absolute inset-0 bg-indigo-50 rounded-xl -z-10"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
@@ -99,28 +100,53 @@ const TeacherSidebar = ({ activeTab, onTabChange }) => {
 
           <div>
             <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Komunikasi</p>
-            <button
-              onClick={() => navigate('/teacher/chat')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 group relative ${
-                isChatActive
-                  ? 'text-indigo-600 font-bold'
-                  : 'text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50'
-              }`}
-            >
-              <span className={`transition-colors ${isChatActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </span>
-              Pesan Ortu
-              {isChatActive && (
-                <motion.div
-                  layoutId="active-nav-bg"
-                  className="absolute inset-0 bg-indigo-50 rounded-xl -z-10"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-            </button>
+            <div className="space-y-1">
+              <button
+                onClick={() => navigate('/teacher/chat')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 group relative ${
+                  isChatActive
+                    ? 'text-indigo-600 font-bold'
+                    : 'text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <span className={`transition-colors ${isChatActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  </svg>
+                </span>
+                Pesan Ortu
+                {isChatActive && (
+                  <motion.div
+                    layoutId="active-nav-bg-teacher"
+                    className="absolute inset-0 bg-indigo-50 rounded-xl -z-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </button>
+
+              <button
+                onClick={() => navigate('/teacher/collaboration')}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 group relative ${
+                  isCollabActive
+                    ? 'text-indigo-600 font-bold'
+                    : 'text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <span className={`transition-colors ${isCollabActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </span>
+                Kolaborasi Siswa
+                {isCollabActive && (
+                  <motion.div
+                    layoutId="active-nav-bg-teacher"
+                    className="absolute inset-0 bg-indigo-50 rounded-xl -z-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -130,8 +156,8 @@ const TeacherSidebar = ({ activeTab, onTabChange }) => {
             onClick={() => navigate('/profile')}
             className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all group"
           >
-            <div className="w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
-              {profile?.full_name?.[0] || 'G'}
+            <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-lg shadow-indigo-100">
+              {profile?.full_name?.[0] || 'B'}
             </div>
             <div className="text-left overflow-hidden">
                <p className="text-xs font-bold text-slate-900 truncate">{profile?.full_name?.split(' ')[0]}</p>

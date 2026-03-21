@@ -25,7 +25,10 @@ const TeacherCreateTask = () => {
     showExplanation: true,
     allowLate: false,
     shuffle: false,
-    maxAttempts: 1
+    maxAttempts: 1,
+    isPublic: true,
+    enrollKey: '',
+    shortId: ''
   });
 
   const [questions, setQuestions] = useState([]);
@@ -57,7 +60,10 @@ const TeacherCreateTask = () => {
           showExplanation: task.show_explanation,
           allowLate: task.allow_late_submission,
           shuffle: task.shuffle_questions,
-          maxAttempts: task.max_attempts
+          maxAttempts: task.max_attempts,
+          isPublic: task.is_public !== false,
+          enrollKey: task.enroll_key || '',
+          shortId: task.short_id || ''
         });
 
         const formattedQs = task.assignment_questions.map(q => ({
@@ -77,6 +83,17 @@ const TeacherCreateTask = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateShortId = async () => {
+    let unique = false;
+    let newId = '';
+    while (!unique) {
+      newId = Math.floor(100000 + Math.random() * 900000).toString();
+      const { data } = await supabase.from('assignments').select('id').eq('short_id', newId).maybeSingle();
+      if (!data) unique = true;
+    }
+    return newId;
   };
 
   const addQuestion = (type) => {
@@ -101,8 +118,15 @@ const TeacherCreateTask = () => {
 
   const handleSubmit = async () => {
     if (!taskData.title || questions.length === 0) return alert("Mohon lengkapi data.");
+    if (!taskData.isPublic && !taskData.enrollKey) return alert("Tugas Private wajib memiliki Enroll Key.");
+
     setLoading(true);
     try {
+      let finalShortId = taskData.shortId;
+      if (!taskData.isPublic && !finalShortId) {
+        finalShortId = await generateShortId();
+      }
+
       const payload = {
         title: taskData.title,
         description: taskData.description,
@@ -114,6 +138,9 @@ const TeacherCreateTask = () => {
         allow_late_submission: taskData.allowLate,
         shuffle_questions: taskData.shuffle,
         max_attempts: taskData.maxAttempts,
+        is_public: taskData.isPublic,
+        enroll_key: taskData.isPublic ? null : taskData.enrollKey,
+        short_id: taskData.isPublic ? null : finalShortId,
         teacher_id: profile.id
       };
 
@@ -148,7 +175,7 @@ const TeacherCreateTask = () => {
         }
       }
 
-      navigate('/teacher/dashboard');
+      navigate('/teacher/dashboard?tab=assignments');
     } catch (err) {
       alert(err.message);
     } finally {
@@ -204,6 +231,49 @@ const TeacherCreateTask = () => {
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
                 />
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Jenis Akses</label>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setTaskData({...taskData, isPublic: true})}
+                      className={`flex-1 py-4 rounded-2xl font-bold text-sm transition-all border ${taskData.isPublic ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-500 border-slate-100'}`}
+                    >
+                      Public
+                    </button>
+                    <button
+                      onClick={() => setTaskData({...taskData, isPublic: false})}
+                      className={`flex-1 py-4 rounded-2xl font-bold text-sm transition-all border ${!taskData.isPublic ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-500 border-slate-100'}`}
+                    >
+                      Private
+                    </button>
+                  </div>
+                </div>
+                {!taskData.isPublic && (
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Enroll Key (Kunci Masuk)</label>
+                    <input
+                      type="text"
+                      value={taskData.enrollKey}
+                      onChange={e => setTaskData({...taskData, enrollKey: e.target.value})}
+                      placeholder="Buat kunci masuk..."
+                      className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-900 outline-none focus:border-indigo-500 transition-all"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {!taskData.isPublic && taskData.shortId && (
+                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center justify-between">
+                   <div>
+                     <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">ID Kursus (Share ke Siswa)</p>
+                     <p className="text-2xl font-black text-amber-700 tracking-tighter">{taskData.shortId}</p>
+                   </div>
+                   <span className="text-3xl">🔑</span>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Instruksi Pengerjaan</label>
                 <textarea
