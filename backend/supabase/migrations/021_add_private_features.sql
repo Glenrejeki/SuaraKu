@@ -21,6 +21,7 @@ CREATE POLICY "Akses assignments"
   ON assignments FOR SELECT
   USING (auth.role() = 'authenticated');
 
+
 -- Fix RLS for modules
 DROP POLICY IF EXISTS "Semua pengguna dapat melihat modul" ON modules;
 DROP POLICY IF EXISTS "Guru dapat melihat modul miliknya" ON modules;

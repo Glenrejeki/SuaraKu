@@ -3,13 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
-import { useVoice } from '../../hooks/useVoice';
-import VoiceButton from '../../components/VoiceButton';
 import StudentSidebar from '../../components/StudentSidebar';
 
 const StudentCollaboration = () => {
   const { profile } = useAuthStore();
-  const { speak } = useVoice();
   const navigate = useNavigate();
 
   const [myGroups, setMyGroups] = useState([]);
@@ -28,17 +25,10 @@ const StudentCollaboration = () => {
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  const collabCommands = {
-    'BACK': ['kembali', 'dashboard', 'keluar'],
-    'SWITCH_DISCOVER': ['cari kelompok', 'temukan kelompok', 'semua kelompok'],
-    'SWITCH_MINE': ['kelompok saya', 'grup saya'],
-  };
-
   useEffect(() => {
     fetchMyGroups();
     fetchAllGroups();
-    speak("Halaman Kolaborasi. Kamu bisa berdiskusi dengan teman sekelas.");
-  }, [speak]);
+  }, []);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -109,7 +99,6 @@ const StudentCollaboration = () => {
     }
 
     if (joiningGroup.requires_approval) {
-      // Cek apakah sudah ada request atau keanggotaan
       const { data: existingRequest } = await supabase
         .from('group_join_requests')
         .select('id')
@@ -134,7 +123,6 @@ const StudentCollaboration = () => {
         setShowJoinModal(false);
       }
     } else {
-      // Cek apakah sudah jadi anggota (untuk menghindari error unique constraint)
       const isAlreadyMember = myGroups.some(g => g.id === joiningGroup.id);
       if (isAlreadyMember) {
         setShowJoinModal(false);
@@ -153,9 +141,7 @@ const StudentCollaboration = () => {
         setShowJoinModal(false);
         setActiveTab('mine');
         setSelectedGroup(joiningGroup);
-        speak(`Berhasil bergabung ke kelompok ${joiningGroup.name}`);
       } else if (error.code === '23505') {
-        // Jika error tetap terjadi karena race condition, anggap sukses dan buka grup
         await fetchMyGroups();
         setShowJoinModal(false);
         setActiveTab('mine');
@@ -179,12 +165,11 @@ const StudentCollaboration = () => {
       if (!error) {
         setSelectedGroup(null);
         fetchMyGroups();
-        speak("Berhasil keluar dari kelompok.");
       }
     }
   };
 
-  const handleFileUpload = async (e, type) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -201,17 +186,10 @@ const StudentCollaboration = () => {
       await supabase.from('group_messages').insert({
         group_id: selectedGroup.id,
         sender_id: profile.id,
-        content: type === 'image' ? '[Gambar]' : '[Suara]',
-        image_url: type === 'image' ? publicUrl : null,
-        audio_url: type === 'audio' ? publicUrl : null
+        content: '[Gambar]',
+        image_url: publicUrl
       });
     }
-  };
-
-  const handleCommand = (command, transcript) => {
-    if (command === 'BACK') navigate('/student/dashboard');
-    if (command === 'SWITCH_DISCOVER') setActiveTab('discover');
-    if (command === 'SWITCH_MINE') setActiveTab('mine');
   };
 
   return (
@@ -261,10 +239,7 @@ const StudentCollaboration = () => {
                 myGroups.map(group => (
                   <button
                     key={group.id}
-                    onClick={() => {
-                      setSelectedGroup(group);
-                      speak(`Membuka ${group.name}`);
-                    }}
+                    onClick={() => setSelectedGroup(group)}
                     className={`w-full p-5 text-left rounded-2xl transition-all duration-300 ${selectedGroup?.id === group.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-50 text-slate-700 border border-transparent hover:border-slate-100'}`}
                   >
                     <p className="font-bold tracking-tight text-sm">{group.name}</p>
@@ -317,9 +292,6 @@ const StudentCollaboration = () => {
                           {msg.image_url && (
                             <img src={msg.image_url} alt="Shared" className="rounded-xl mb-2 max-h-60 object-cover cursor-pointer" onClick={() => window.open(msg.image_url)} />
                           )}
-                          {msg.audio_url && (
-                            <audio src={msg.audio_url} controls className="mb-2 max-w-full" />
-                          )}
                           <p>{msg.content}</p>
                         </div>
                       </motion.div>
@@ -338,7 +310,7 @@ const StudentCollaboration = () => {
                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                          </svg>
                       </button>
-                      <input type="file" hidden ref={fileInputRef} onChange={(e) => handleFileUpload(e, 'image')} accept="image/*" />
+                      <input type="file" hidden ref={fileInputRef} onChange={(e) => handleFileUpload(e)} accept="image/*" />
 
                       <input
                         type="text"
@@ -402,8 +374,6 @@ const StudentCollaboration = () => {
             </div>
           )}
         </AnimatePresence>
-
-        <VoiceButton commands={collabCommands} onCommandMatch={handleCommand} />
       </main>
     </div>
   );

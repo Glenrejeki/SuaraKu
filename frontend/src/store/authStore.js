@@ -8,83 +8,102 @@ export const useAuthStore = create(
       user: null,
       profile: null,
       loading: true,
+      subscription: null,
 
       setUser: (user) => set({ user }),
       setProfile: (profile) => set({ profile }),
 
-      fetchProfile: async (userId) => {
+      // Mendengarkan perubahan profil secara Realtime
+      subscribeToProfile: (userId) => {
         if (!userId) return;
-        set({ loading: true })
+
+        // Hapus subscription lama jika ada
+        const existingSub = get().subscription;
+        if (existingSub) {
+          supabase.removeChannel(existingSub);
+        }
+
+        const channel = supabase
+          .channel(`public:profiles:id=eq.${userId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'profiles',
+              filter: `id=eq.${userId}`,
+            },
+            (payload) => {
+              console.log('Realtime profile update:', payload.new);
+              set({ profile: payload.new });
+            }
+          )
+          .subscribe();
+
+        set({ subscription: channel });
+      },
+
+      unsubscribeFromProfile: () => {
+        const { subscription } = get();
+        if (subscription) {
+          supabase.removeChannel(subscription);
+          set({ subscription: null });
+        }
+      },
+
+      fetchProfile: async (userId) => {
+        if (!userId) return null;
+        set({ loading: true });
 
         try {
-          // 1. Ambil data profil dasar
-          const { data: profileData } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single()
+            .single();
+
+          if (profileError) throw profileError;
 
           if (profileData) {
-            // 2. Agregasi XP dari Submissions (Tugas)
-            const { data: subs } = await supabase
-              .from('submissions')
-              .select('total_score')
-              .eq('student_id', userId);
+            // Jalankan subscription realtime setelah profile ditemukan
+            get().subscribeToProfile(userId);
 
-            // 3. Agregasi XP dari Quiz Results
-            // Catatan: Di StudentQuiz.jsx, XP dihitung score * 30
-            // Kita perlu mengambil data kuis untuk sinkronisasi yang benar
-            const { data: quizRes } = await supabase
-              .from('quiz_results')
-              .select('score, quiz_id')
-              .eq('student_id', userId);
-
-            const taskXP = subs?.reduce((acc, curr) => acc + (curr.total_score || 0), 0) || 0;
-
-            // Mengasumsikan 1 soal kuis bernilai 30 XP seperti di StudentQuiz.jsx
-            // Jika score di quiz_results adalah persentase, kita perlu menyesuaikan.
-            // Untuk sementara kita asumsikan score di quiz_results adalah XP yang didapat atau kita hitung proporsional.
-            // Berdasarkan StudentQuiz.jsx: xpGained = score (jumlah benar) * 30
-            const quizXP = quizRes?.reduce((acc, curr) => {
-                // Jika kita tidak simpan 'points' langsung, kita asumsikan dari score
-                // Namun idealnya tabel quiz_results punya kolom points_earned
-                return acc + (curr.score || 0);
-            }, 0) || 0;
-
-            const totalXP = taskXP + quizXP;
-            const finalProfile = { ...profileData, xp: totalXP };
-
-            // 4. Sinkronisasi ke Database jika berbeda
-            if (profileData.xp !== totalXP) {
-              await supabase.from('profiles').update({ xp: totalXP }).eq('id', userId);
-            }
-
-            set({ profile: finalProfile, loading: false });
-            return finalProfile;
+            set({ profile: profileData, loading: false });
+            return profileData;
           }
         } catch (error) {
           console.error("Error fetching profile:", error);
         } finally {
           set({ loading: false });
         }
+        return null;
       },
 
       updateXP: async (xpGained) => {
         const { profile } = get()
         if (profile) {
-          const newXP = (profile.xp || 0) + xpGained;
-          set({ profile: { ...profile, xp: newXP } });
-          await supabase.from('profiles').update({ xp: newXP }).eq('id', profile.id);
+          const { data, error } = await supabase.rpc('increment_xp', {
+            user_id: profile.id,
+            amount: xpGained
+          });
+
+          if (error) {
+            // Fallback manual jika RPC belum ada
+            const newXP = Number(profile.xp || 0) + Number(xpGained);
+            await supabase.from('profiles').update({ xp: newXP }).eq('id', profile.id);
+          }
         }
       },
 
       logout: async () => {
+        get().unsubscribeFromProfile();
         await supabase.auth.signOut()
         set({ user: null, profile: null })
       }
     }),
     {
-      name: 'suaraku-auth-storage',
+      name: 'bintangai-auth-storage',
+      partialize: (state) => ({ user: state.user, profile: state.profile }), // Jangan persist subscription
     }
   )
 )

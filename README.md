@@ -1,10 +1,10 @@
-# SuaraKu - Platform Belajar Berbasis Suara untuk Siswa Berkebutuhan Khusus
+# BintangAi - Platform Belajar Berbasis Suara untuk Siswa Berkebutuhan Khusus
 
 ## Tech Stack
 - Frontend: React + Vite (deploy ke Vercel)
 - Backend Logic: Supabase Edge Functions (Deno)
 - Database/Auth/Storage: Supabase
-- AI: HuggingFace Inference API via Edge Functions
+- AI: Groq Cloud API & Google Gemini via Edge Functions
 
 ## Cara Deploy
 1. Clone repositori ini

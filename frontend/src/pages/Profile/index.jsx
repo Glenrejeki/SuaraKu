@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
-import { useVoice } from '../../hooks/useVoice';
 import TeacherSidebar from '../../components/TeacherSidebar';
 import StudentSidebar from '../../components/StudentSidebar';
 import ParentSidebar from '../../components/ParentSidebar';
 
 const Profile = () => {
   const { profile, logout, setProfile } = useAuthStore();
-  const { speak } = useVoice();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(profile?.role === 'guru' ? 'identitas' : profile?.role === 'ortu' ? 'link' : 'aksesibilitas');
@@ -90,7 +88,6 @@ const Profile = () => {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
-    speak("ID berhasil disalin ke papan klip");
     alert("ID Berhasil Disalin!");
   };
 
@@ -117,7 +114,7 @@ const Profile = () => {
           >
              <div>
                <h3 className="text-xl font-bold text-slate-900 tracking-tight">Informasi Profil</h3>
-               <p className="text-sm text-slate-500 mt-1">Data identitas Anda di platform SuaraKu.</p>
+               <p className="text-sm text-slate-500 mt-1">Data identitas Anda di platform BintangAi.</p>
              </div>
 
              <div className="grid md:grid-cols-2 gap-8">
@@ -127,26 +124,64 @@ const Profile = () => {
                     {profile?.full_name}
                   </div>
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">ID Akun</label>
-                  <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-600 font-mono text-xs">
-                    {profile?.id}
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nama SLB / Sekolah</label>
+                  <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-900">
+                    {profile?.slb_name || '-'}
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                    {profile?.role === 'guru' ? 'Kelas Diampu' : 'Kelas'}
+                  </label>
+                  <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-900">
+                    {profile?.class_level || '-'}
+                  </div>
+                </div>
+
+                {profile?.role === 'guru' && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Kode Kelas (Siswa)</label>
+                      <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl font-bold text-indigo-600 flex justify-between items-center">
+                        <span className="font-mono text-lg">{profile?.class_code}</span>
+                        <button onClick={() => copyToClipboard(profile?.class_code)} className="text-xs underline">Salin</button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Mata Pelajaran</label>
+                      <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-900">
+                        {profile?.subject || '-'}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {profile?.role === 'siswa' && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Jenis Disabilitas</label>
+                      <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-slate-900 capitalize">
+                        {profile?.disability_type?.replace('_', ' ') || '-'}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Total XP</label>
+                      <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl font-bold text-amber-600">
+                        ✨ {profile?.xp || 0} XP
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Peran Akun</label>
                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl font-bold text-indigo-600 capitalize">
-                    {profile?.role} SuaraKu
+                    {profile?.role} BintangAi
                   </div>
                 </div>
-                {profile?.role === 'siswa' && (
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Total XP</label>
-                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl font-bold text-amber-600">
-                      ✨ {profile?.xp || 0} XP
-                    </div>
-                  </div>
-                )}
              </div>
           </motion.div>
         )}

@@ -23,6 +23,7 @@ const TeacherUploadModule = () => {
 
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
+  const [tags, setTags] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [enrollKey, setEnrollKey] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,6 +55,9 @@ const TeacherUploadModule = () => {
       const extractedText = await extractTextFromPdf(file);
       if (!extractedText.trim()) throw new Error("PDF tidak terbaca atau kosong.");
 
+      // Format tags from comma separated string to array
+      const tagArray = tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t !== '');
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${profile.id}-${Date.now()}.${fileExt}`;
 
@@ -71,7 +75,8 @@ const TeacherUploadModule = () => {
         content: extractedText,
         teacher_id: profile.id,
         is_public: isPublic,
-        enroll_key: isPublic ? null : enrollKey
+        enroll_key: isPublic ? null : enrollKey,
+        tags: tagArray // Added tags for Adaptive Recommendation
       });
 
       if (dbError) throw dbError;
@@ -121,6 +126,18 @@ const TeacherUploadModule = () => {
                     placeholder="Contoh: Mengenal Ekosistem Laut"
                     className="w-full px-6 py-4 bg-slate-50 border border-slate-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 rounded-2xl font-bold text-slate-900 outline-none transition-all"
                   />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Tag Topik (Pisahkan dengan koma)</label>
+                  <input
+                    type="text"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    placeholder="Contoh: perkalian, pecahan, logika"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 rounded-2xl font-bold text-slate-900 outline-none transition-all"
+                  />
+                  <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest ml-2 italic">* Digunakan untuk Rekomendasi Adaptif siswa</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

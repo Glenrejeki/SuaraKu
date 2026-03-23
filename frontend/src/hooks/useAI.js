@@ -1,96 +1,100 @@
-// hooks/useAI.js
-import { supabase } from '../lib/supabase'
-import { useAuthStore } from '../store/authStore'
+import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 
-export function useAI() {
-  const { profile } = useAuthStore()
-
-  /**
-   * Fitur Tanya AI (Chat dengan Kak SuaraKu)
-   * Menggunakan Edge Function 'ai-tutor'
-   */
-  const askTutor = async (question) => {
-    if (!question || !question.trim()) {
-      return { answer: "Halo! Ada yang bisa Kak SuaraKu bantu? 😊" }
-    }
-
-    try {
-      console.log("Sending request to ai-tutor function...")
-
-      const { data, error } = await supabase.functions.invoke('ai-tutor', {
-        body: {
-          message: question,
-          kelas: profile?.grade_level || 1,
-          nama: profile?.full_name || 'Teman'
-        },
-      })
-
-      if (error) {
-        console.error("Supabase function error:", error)
-        throw error
-      }
-
-      const answer = data?.reply ?? "Maaf, Kak SuaraKu sedang tidak bisa menjawab. Coba tanya lagi nanti ya! 😊"
-
-      // Simpan log ke Supabase (opsional)
-      try {
-        await supabase.from('ai_interactions').insert({
-          student_id: profile?.id,
-          question: question.substring(0, 500),
-          answer: answer.substring(0, 1000),
-          topic: "Umum",
-          disability_context: profile?.disability_type,
-          grade_context: profile?.grade_level
-        })
-      } catch (e) {
-        console.warn("Gagal insert log:", e.message)
-      }
-
-      return { answer }
-
-    } catch (error) {
-      console.error("AI Error details:", error)
-      let userMessage = "Waduh, Kak SuaraKu lagi istirahat sebentar. Coba lagi nanti ya! 😊"
-
-      if (error.message?.includes("Failed to fetch") || error.message?.includes("network")) {
-        userMessage = "Koneksi internet sedang bermasalah. Periksa koneksi internetmu ya! 😊"
-      }
-
-      return { answer: userMessage }
-    }
-  }
+export const useAI = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   /**
-   * Fitur Meringkas Modul
-   * Menggunakan Edge Function 'summarize'
+   * Mengambil laporan terbaru dari database (untuk Orang Tua)
    */
-  const summarize = async (content) => {
-    if (!content || !content.trim()) {
-      return "Tidak ada materi yang bisa diringkas. 😊"
-    }
-
+  const getParentReport = async (studentId) => {
+    setLoading(true);
     try {
-      console.log("Sending request to summarize function...")
+      const { data, error: dbError } = await supabase
+        .from('student_reports')
+        .select('content, created_at')
+        .eq('student_id', studentId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      const { data, error } = await supabase.functions.invoke('summarize', {
-        body: {
-          content: content,
-          grade_level: profile?.grade_level || 1
-        },
-      })
+      if (dbError) throw dbError;
+      return data?.content || null;
+    } catch (err) {
+      console.error("Gagal mengambil laporan:", err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      if (error) {
-        console.error("Summarize function error:", error)
-        throw error
+  /**
+   * Menjalankan AI untuk generate laporan dan menyimpannya ke database (untuk Guru)
+   * MENGGUNAKAN FUNGSI BARU: generate-parent-report-ai
+   */
+  const generateAndSaveReport = async (studentId, teacherId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // MENGGUNAKAN FUNGSI BARU DENGAN VERIFY_JWT = FALSE
+      const { data, error: invokeError } = await supabase.functions.invoke('generate-parent-report-ai', {
+        body: { student_id: studentId }
+      });
+
+      if (invokeError) {
+        console.error("Invoke Error Details:", invokeError);
+        throw new Error(`Gagal menghubungi BintangAi: ${invokeError.message}`);
       }
 
-      return data?.summary ?? "📚 **Gagal meringkas modul.** Coba lagi nanti ya! 😊"
+      if (!data || !data.report) {
+        throw new Error("BintangAi tidak memberikan respon laporan.");
+      }
 
-    } catch (error) {
-      console.error("Summarize Error details:", error)
-      return "Waduh, Kak SuaraKu kesulitan membaca modul ini. Coba lagi nanti ya! 😊"
+      const aiReportContent = data.report;
+
+      // Simpan hasil narasi ke tabel student_reports agar bisa dibaca Orang Tua
+      const { error: saveError } = await supabase
+        .from('student_reports')
+        .insert({
+          student_id: studentId,
+          teacher_id: teacherId,
+          content: aiReportContent,
+          report_type: 'mingguan'
+        });
+
+      if (saveError) throw saveError;
+
+      return { success: true, report: aiReportContent };
+    } catch (err) {
+      console.error("Generate Report Error:", err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  return { askTutor, summarize }
-}
+  const generateAIQuiz = async (params) => {
+    setLoading(true);
+    try {
+      const { data, error: invokeError } = await supabase.functions.invoke('generate-quiz', {
+        body: params
+      });
+      if (invokeError) throw invokeError;
+      return data;
+    } catch (err) {
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    getParentReport,
+    generateAndSaveReport,
+    generateAIQuiz,
+    loading,
+    error
+  };
+};

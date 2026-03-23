@@ -5,47 +5,73 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="eda5c7ed-3599-4636-bcf6-9682598eb62c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.github/workflows/deploy-functions.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/config.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/generate-parent-report-ai/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/generate-questions/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/generate-quiz/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/get-parent-report/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/weak-topic/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/functions/weak-topics/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/022_update_registration_fields.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/023_add_weak_topics_to_profiles.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/024_add_retake_permission.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/025_fix_assignment_questions_schema.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/026_auto_generate_short_id.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/027_fix_teacher_permissions.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/028_restrict_quiz_attempts.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/029_fix_chat_system.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/030_fix_infinite_recursion.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/031_fix_teacher_view_results_recursion.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/032_fix_profiles_recursion_final.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/supabase/migrations/033_add_student_reports.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/AccessibilityProvider.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/components/InactivityLogout.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/.temp/gotrue-version" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/.temp/gotrue-version" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/functions/_shared/gemini.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/functions/_shared/huggingface.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/supabase/functions/ai-tutor/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/functions/ai-tutor/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/functions/ask-tutor/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/functions/ask-tutor/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/supabase/functions/summarize/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/functions/summarize/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/migrations/017_fix_profiles_rls_insert.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/supabase/migrations/021_add_private_features.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/supabase/migrations/021_add_private_features.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/@supabase_supabase-js.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/@supabase_supabase-js.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/@supabase_supabase-js.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/@supabase_supabase-js.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/keepAlive.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/keepAlive.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/_metadata.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EOPSRPNR.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EOPSRPNR.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EOPSRPNR.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EOPSRPNR.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EWCYXTJE.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EWCYXTJE.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EWCYXTJE.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-EWCYXTJE.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-ROME4SDB.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-ROME4SDB.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-ROME4SDB.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/chunk-ROME4SDB.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/framer-motion.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/framer-motion.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/framer-motion.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/framer-motion.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-dom.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-dom_client.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-dom_client.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-dom_client.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-dom_client.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-router-dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react-router-dom.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-dev-runtime.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-dev-runtime.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-dev-runtime.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-dev-runtime.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-runtime.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-runtime.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-runtime.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/react_jsx-runtime.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand.js.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand_middleware.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand_middleware.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand_middleware.js.map" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/node_modules/.vite/deps/zustand_middleware.js.map" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/public/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/ParentSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ParentSidebar.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/StudentSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/StudentSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/TeacherSidebar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/TeacherSidebar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/VoiceButton.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/VoiceButton.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/hooks/useAI.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/hooks/useAI.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/hooks/useVoice.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/hooks/useVoice.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Auth/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Auth/index.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Landing/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Landing/index.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Profile/index.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Profile/index.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/parent/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/parent/Chat.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/parent/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/parent/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Collaboration.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Collaboration.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Dashboard.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Modules.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Modules.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Playground.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Playground.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Quiz.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Quiz.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/TaskDetail.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/TaskDetail.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/student/Tasks.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/student/Tasks.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Chat.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/Collaboration.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Collaboration.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/CreateTask.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/CreateTask.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/Dashboard.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/Dashboard.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/teacher/UploadModule.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/teacher/UploadModule.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/store/authStore.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/store/authStore.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/styles/adaptive.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/styles/adaptive.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -59,18 +85,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Glenrejeki"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Glenrejeki&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Glenrejeki/SuaraKu.git",
-    "accountId": "847b2de2-4b1e-480d-a6bd-64683754fd84"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Glenrejeki/SuaraKu.git&quot;,
+    &quot;accountId&quot;: &quot;847b2de2-4b1e-480d-a6bd-64683754fd84&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>

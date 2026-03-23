@@ -105,7 +105,6 @@ const TeacherCollaboration = () => {
     } else {
       const { data, error } = await supabase.from('study_groups').insert([payload]).select().single();
       if (!error && data) {
-        // Otomatis jadi anggota
         await supabase.from('group_members').insert([{ group_id: data.id, student_id: profile.id, role: 'leader' }]);
         setShowCreateModal(false);
         fetchGroups();
@@ -155,7 +154,7 @@ const TeacherCollaboration = () => {
     if (!error) setNewMessage('');
   };
 
-  const handleFileUpload = async (e, type) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -172,9 +171,8 @@ const TeacherCollaboration = () => {
       await supabase.from('group_messages').insert({
         group_id: selectedGroup.id,
         sender_id: profile.id,
-        content: type === 'image' ? '[Gambar]' : '[Suara]',
-        image_url: type === 'image' ? publicUrl : null,
-        audio_url: type === 'audio' ? publicUrl : null
+        content: '[Gambar]',
+        image_url: publicUrl
       });
     }
   };
@@ -265,9 +263,6 @@ const TeacherCollaboration = () => {
                           {msg.image_url && (
                             <img src={msg.image_url} alt="Shared" className="rounded-xl mb-2 max-h-60 object-cover" />
                           )}
-                          {msg.audio_url && (
-                            <audio src={msg.audio_url} controls className="mb-2 max-w-full" />
-                          )}
                           <p className="font-medium">{msg.content}</p>
                         </div>
                       </div>
@@ -288,7 +283,7 @@ const TeacherCollaboration = () => {
                       </button>
                       <input
                         type="file" hidden ref={fileInputRef}
-                        onChange={(e) => handleFileUpload(e, 'image')}
+                        onChange={(e) => handleFileUpload(e)}
                         accept="image/*"
                       />
                       <input

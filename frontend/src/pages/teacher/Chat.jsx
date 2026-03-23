@@ -17,11 +17,11 @@ const TeacherChat = () => {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    fetchConversations();
-  }, []);
+    if (profile?.id) fetchData();
+  }, [profile]);
 
   useEffect(() => {
-    if (selectedConvo) {
+    if (selectedConvo && !selectedConvo.is_new) {
       fetchMessages();
       const subscription = supabase
         .channel(`convo-${selectedConvo.id}`)
@@ -38,6 +38,8 @@ const TeacherChat = () => {
       return () => {
         supabase.removeChannel(subscription);
       };
+    } else if (selectedConvo?.is_new) {
+        setMessages([]);
     }
   }, [selectedConvo]);
 
@@ -45,16 +47,64 @@ const TeacherChat = () => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const fetchConversations = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('direct_conversations')
-      .select('*, parent:profiles!direct_conversations_parent_id_fkey(id, full_name), student:profiles!direct_conversations_student_id_fkey(full_name)')
-      .eq('teacher_id', profile.id)
-      .order('created_at', { ascending: false });
+    try {
+      // 1. Ambil percakapan yang sudah ada
+      const { data: convos } = await supabase
+        .from('direct_conversations')
+        .select('*, parent:profiles!direct_conversations_parent_id_fkey(id, full_name), student:profiles!direct_conversations_student_id_fkey(full_name)')
+        .eq('teacher_id', profile.id);
 
-    if (data) setConversations(data);
-    setLoading(false);
+      // 2. Ambil semua Siswa di kelas guru ini
+      const { data: classStudents } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('role', 'siswa')
+        .eq('class_code', profile.class_code);
+
+      const studentIds = classStudents?.map(s => s.id) || [];
+
+      if (studentIds.length === 0) {
+        setConversations([]);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Ambil Orang Tua yang terhubung dengan siswa-siswa tersebut
+      // Perbaikan Query: Menggunakan nama kolom foreign key untuk self-join
+      const { data: allParents, error: pError } = await supabase
+        .from('profiles')
+        .select('id, full_name, linked_student_id')
+        .eq('role', 'ortu')
+        .in('linked_student_id', studentIds);
+
+      if (pError) throw pError;
+
+      const merged = (allParents || []).map(p => {
+          const existing = convos?.find(c => c.parent_id === p.id);
+          const studentInfo = classStudents.find(s => s.id === p.linked_student_id);
+
+          return {
+              id: existing?.id || `new-${p.id}`,
+              parent_id: p.id,
+              parent: { id: p.id, full_name: p.full_name },
+              student: { full_name: studentInfo?.full_name || 'Siswa' },
+              is_new: !existing,
+              student_id: p.linked_student_id
+          };
+      });
+
+      setConversations(merged);
+
+      if (merged.length > 0 && !selectedConvo) {
+          setSelectedConvo(merged[0]);
+      }
+    } catch (err) {
+      console.error("Fetch Data Error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchMessages = async () => {
@@ -70,8 +120,29 @@ const TeacherChat = () => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConvo) return;
 
+    let convoId = selectedConvo.id;
+
+    if (selectedConvo.is_new) {
+        const { data: newConvo, error: convoErr } = await supabase
+            .from('direct_conversations')
+            .insert({
+                teacher_id: profile.id,
+                parent_id: selectedConvo.parent_id,
+                student_id: selectedConvo.student_id
+            })
+            .select()
+            .single();
+
+        if (convoErr) return alert(convoErr.message);
+        convoId = newConvo.id;
+        setSelectedConvo({ ...selectedConvo, id: convoId, is_new: false });
+
+        // Update list agar tidak dianggap "new" lagi
+        setConversations(prev => prev.map(c => c.parent_id === selectedConvo.parent_id ? { ...c, id: convoId, is_new: false } : c));
+    }
+
     const { error } = await supabase.from('direct_messages').insert({
-      conversation_id: selectedConvo.id,
+      conversation_id: convoId,
       sender_id: profile.id,
       content: newMessage
     });
@@ -85,149 +156,88 @@ const TeacherChat = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex font-sans selection:bg-indigo-100">
+    <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
       <TeacherSidebar activeTab="" />
-
-      {/* Sidebar Pesan (Inner) */}
-      <aside className="w-96 bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen overflow-hidden">
+      <aside className="w-96 bg-white border-r border-slate-100 flex flex-col h-screen overflow-hidden">
         <div className="p-8 border-b border-slate-50">
-           <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-6">Pesan Ortu</h1>
-
-           <div className="relative">
-             <input
+           <h1 className="text-2xl font-black text-slate-900 tracking-tight mb-6">Pesan Ortu</h1>
+           <input
                type="text"
-               placeholder="Cari orang tua atau siswa..."
+               placeholder="Cari nama orang tua atau siswa..."
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
-               className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+               className="w-full px-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-bold outline-none focus:border-indigo-300 transition-all"
              />
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2">
-               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-             </svg>
-           </div>
         </div>
-
         <div className="flex-1 overflow-y-auto p-4 space-y-1">
            {filteredConversations.map(convo => (
              <button
                key={convo.id}
                onClick={() => setSelectedConvo(convo)}
-               className={`w-full p-4 rounded-2xl text-left transition-all duration-200 flex items-center gap-4 ${selectedConvo?.id === convo.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-50'}`}
+               className={`w-full p-4 rounded-2xl text-left transition-all flex items-center gap-4 ${selectedConvo?.parent_id === convo.parent_id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-50'}`}
              >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold shrink-0 ${selectedConvo?.id === convo.id ? 'bg-white/20' : 'bg-indigo-50 text-indigo-600'}`}>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold shrink-0 ${selectedConvo?.parent_id === convo.parent_id ? 'bg-white/20' : 'bg-indigo-50 text-indigo-600'}`}>
                    {convo.parent?.full_name[0]}
                 </div>
                 <div className="flex-1 min-w-0">
-                   <p className={`font-bold truncate text-sm ${selectedConvo?.id === convo.id ? 'text-white' : 'text-slate-900'}`}>{convo.parent?.full_name}</p>
-                   <p className={`text-[11px] font-bold truncate opacity-60`}>Siswa: {convo.student?.full_name}</p>
+                   <p className={`font-bold truncate text-sm ${selectedConvo?.parent_id === convo.parent_id ? 'text-white' : 'text-slate-900'}`}>{convo.parent?.full_name}</p>
+                   <p className={`text-[10px] font-bold truncate ${selectedConvo?.parent_id === convo.parent_id ? 'text-white/70' : 'text-slate-400'}`}>Anak: {convo.student?.full_name}</p>
                 </div>
              </button>
            ))}
-           {filteredConversations.length === 0 && (
-             <div className="py-20 text-center">
-               <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Tidak ditemukan</p>
-             </div>
+           {!loading && filteredConversations.length === 0 && (
+             <div className="p-8 text-center text-slate-400 text-xs font-bold">Tidak ada orang tua ditemukan.</div>
            )}
         </div>
       </aside>
 
-      {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col h-screen bg-white overflow-hidden">
+      <main className="flex-1 flex flex-col h-screen bg-white">
         {selectedConvo ? (
           <>
-            <header className="px-10 py-6 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-10">
+            <header className="px-10 py-6 border-b border-slate-100 flex items-center justify-between">
                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-xl font-bold">
-                     {selectedConvo.parent?.full_name[0]}
-                  </div>
+                  <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-xl font-bold">{selectedConvo.parent?.full_name[0]}</div>
                   <div>
-                     <h2 className="text-lg font-bold text-slate-900 tracking-tight">{selectedConvo.parent?.full_name}</h2>
-                     <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Orang Tua {selectedConvo.student?.full_name}</p>
+                     <h2 className="text-lg font-bold text-slate-900">{selectedConvo.parent?.full_name}</h2>
+                     <p className="text-slate-400 font-bold text-[10px] uppercase">Orang Tua {selectedConvo.student?.full_name}</p>
                   </div>
-               </div>
-               <div className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold uppercase tracking-widest border border-indigo-100">
-                  Konsultasi
                </div>
             </header>
-
             <div className="flex-1 overflow-y-auto p-10 space-y-8 bg-[#F8FAFC]">
-               <AnimatePresence initial={false}>
-                  {messages.map((msg, index) => {
-                    const isMe = msg.sender_id === profile.id;
-                    const prevMsg = messages[index - 1];
-                    const isFirstFromSender = !prevMsg || prevMsg.sender_id !== msg.sender_id;
-
-                    return (
-                      <motion.div
-                        key={msg.id}
-                        initial={{ opacity: 0, x: isMe ? 20 : -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className={`flex items-end gap-3 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
-                      >
-                         {!isMe && (
-                           <div className={`w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold shrink-0 mb-1 ${!isFirstFromSender ? 'opacity-0' : ''}`}>
-                             {selectedConvo.parent?.full_name[0]}
-                           </div>
-                         )}
-                         <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%]`}>
-                            {isFirstFromSender && !isMe && (
-                              <span className="text-[10px] font-bold text-slate-400 ml-1 mb-1 uppercase tracking-wider">
-                                {selectedConvo.parent?.full_name.split(' ')[0]}
-                              </span>
-                            )}
-                            <div className={`px-5 py-3.5 rounded-3xl text-[14px] leading-relaxed shadow-sm transition-all hover:shadow-md ${
-                              isMe
-                                ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-br-none'
-                                : 'bg-white text-slate-700 rounded-bl-none border border-slate-100'
-                            }`}>
-                               {msg.content}
-                            </div>
-                            <p className={`text-[10px] mt-1.5 font-bold text-slate-400 px-1`}>
-                               {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                         </div>
-                         {isMe && <div className="w-4" />} {/* Spacer for right side if needed */}
-                      </motion.div>
-                    );
-                  })}
-               </AnimatePresence>
+               {messages.map((msg) => (
+                 <div key={msg.id} className={`flex ${msg.sender_id === profile.id ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`px-5 py-3.5 rounded-3xl text-sm shadow-sm max-w-md ${msg.sender_id === profile.id ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white text-slate-700 rounded-bl-none border border-slate-100'}`}>
+                       {msg.content}
+                       <p className={`text-[8px] mt-1 font-bold ${msg.sender_id === profile.id ? 'text-white/50 text-right' : 'text-slate-300'}`}>
+                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                       </p>
+                    </div>
+                 </div>
+               ))}
                <div ref={scrollRef} />
             </div>
-
             <div className="p-8 bg-white border-t border-slate-100">
                <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-3">
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Tulis pesan balasan..."
-                    className="flex-1 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-medium text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="Tulis pesan ke orang tua..."
+                    className="flex-1 px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:border-indigo-300 transition-all"
                   />
-                  <button
-                    type="submit"
-                    disabled={!newMessage.trim()}
-                    className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 disabled:shadow-none"
-                  >
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                     </svg>
+                  <button type="submit" disabled={!newMessage.trim()} className="w-14 h-14 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:shadow-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
                   </button>
                </form>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-20 text-center bg-[#F8FAFC]">
+          <div className="flex-1 flex flex-col items-center justify-center p-20 text-center">
              <div className="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-[2.5rem] flex items-center justify-center text-4xl mb-8">💬</div>
-             <h3 className="text-xl font-bold text-slate-900 tracking-tight">Pilih Percakapan</h3>
-             <p className="text-slate-400 font-medium mt-2 max-w-xs text-sm">Pilih orang tua dari daftar di samping untuk mulai berkonsultasi mengenai perkembangan siswa.</p>
+             <h3 className="text-xl font-bold text-slate-900">Pilih Percakapan</h3>
+             <p className="text-slate-400 text-sm mt-2">Pilih salah satu orang tua di samping untuk memulai diskusi.</p>
           </div>
         )}
-
-        <footer className="py-6 border-t border-slate-100 text-center bg-white">
-          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 opacity-80">
-            @2026 Suaraku.Developed oleh Christian Johannes Hutahaean Dan Glen Rejeki Sitorus
-          </p>
-        </footer>
       </main>
     </div>
   );

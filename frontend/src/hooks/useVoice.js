@@ -1,86 +1,144 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+
+// Singleton instance to prevent multiple recognition objects interfering with each other
+let sharedRecognition = null;
 
 export function useVoice() {
   const [isListening, setIsListening] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [error, setError] = useState(null)
-  const recognitionRef = useRef(null)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [hasInteracted, setHasInteracted] = useState(false)
 
-  const speak = useCallback((text) => {
-    if (!text) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'id-ID'
-    utterance.rate = 0.9
-    window.speechSynthesis.speak(utterance)
-  }, [])
+  const synthesisRef = useRef(window.speechSynthesis)
+  const audioCtxRef = useRef(null)
+  const isMounted = useRef(true)
 
-  const readPage = useCallback(() => {
-    const elements = document.querySelectorAll('h1, h2, h3, p, button, label, li, [role="button"]');
-    let fullText = "";
-    elements.forEach(el => {
-      if (el.innerText) {
-        fullText += el.innerText + ". ";
+  const getAudioContext = useCallback(() => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtxRef.current;
+  }, []);
+
+  const unlockAudio = useCallback(() => {
+    if (hasInteracted) return;
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') ctx.resume();
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+    setHasInteracted(true);
+  }, [getAudioContext, hasInteracted]);
+
+  useEffect(() => {
+    // Inisialisasi recognition hanya SEKALI (Singleton)
+    if (!sharedRecognition) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        sharedRecognition = new SpeechRecognition();
+        sharedRecognition.continuous = true;
+        sharedRecognition.interimResults = true;
+        sharedRecognition.lang = 'id-ID';
       }
-    });
-    speak(fullText);
-  }, [speak]);
+    }
+
+    const handleFirstInteraction = () => {
+      unlockAudio();
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    window.addEventListener('click', handleFirstInteraction);
+    window.addEventListener('keydown', handleFirstInteraction);
+
+    return () => {
+      isMounted.current = false;
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+  }, [unlockAudio]);
+
+  const playSound = useCallback((type = 'click') => {
+    try {
+      const ctx = getAudioContext();
+      if (ctx.state === 'suspended') ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, ctx.currentTime);
+        gain.gain.setValueAtTime(0.04, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.05);
+      }
+    } catch (e) {}
+  }, [getAudioContext]);
 
   const startListening = useCallback((onResult) => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      setError('Browser tidak mendukung Speech Recognition')
-      return
-    }
+    unlockAudio();
+    if (!sharedRecognition) return;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // Reset status jika sebelumnya macet
+    try { sharedRecognition.stop(); } catch(e) {}
 
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
-    }
+    setIsListening(true);
 
-    const recognition = new SpeechRecognition()
-    recognitionRef.current = recognition
-    recognition.lang = 'id-ID'
-    recognition.continuous = false
-    recognition.interimResults = false
+    sharedRecognition.onresult = (event) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+      }
+      if (finalTranscript && onResult) onResult(finalTranscript);
+    };
 
-    recognition.onstart = () => {
-      setIsListening(true)
-      setError(null)
-    }
+    sharedRecognition.onerror = (event) => {
+      console.error("Mic error:", event.error);
+      setIsListening(false);
+    };
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript
-      setIsListening(false)
-      if (onResult) onResult(transcript)
-    }
+    sharedRecognition.onend = () => {
+      setIsListening(false);
+    };
 
-    recognition.onerror = (event) => {
-      setIsListening(false)
-      setError(event.error)
-    }
-
-    recognition.onend = () => {
-      setIsListening(false)
-    }
-
-    recognition.start()
-  }, [])
+    setTimeout(() => {
+        try { sharedRecognition.start(); } catch(e) {}
+    }, 100);
+  }, [unlockAudio]);
 
   const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
+    if (sharedRecognition) {
+      sharedRecognition.stop();
+      setIsListening(false);
     }
-  }, [])
+  }, []);
+
+  const speak = useCallback((text, rate = 1.1) => {
+    if (!text || !isMounted.current) return;
+    synthesisRef.current.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = synthesisRef.current.getVoices();
+    const idVoice = voices.find(v => v.lang.includes('id-ID')) || voices.find(v => v.lang.includes('id'));
+    if (idVoice) utterance.voice = idVoice;
+    utterance.lang = 'id-ID';
+    utterance.rate = rate;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    synthesisRef.current.speak(utterance);
+  }, []);
 
   return {
     isListening,
-    isProcessing,
-    setIsProcessing,
-    error,
+    isSpeaking,
+    speak,
+    playSound,
+    hasInteracted,
     startListening,
     stopListening,
-    speak,
-    readPage
+    stopSpeaking: () => synthesisRef.current.cancel()
   }
 }

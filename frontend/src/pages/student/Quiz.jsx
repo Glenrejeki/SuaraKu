@@ -3,15 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
-import { useVoice } from '../../hooks/useVoice';
-import VoiceButton from '../../components/VoiceButton';
 import ConfettiEffect from '../../components/ConfettiEffect';
 
 const StudentQuiz = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { profile, updateXP, fetchProfile } = useAuthStore();
-  const { speak } = useVoice();
 
   const [quiz, setQuiz] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -21,96 +18,185 @@ const StudentQuiz = () => {
   const [loading, setLoading] = useState(true);
   const [finished, setFinished] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [alreadyDone, setAlreadyDone] = useState(false);
+  const [existingResult, setExistingResult] = useState(null);
 
-  const quizCommands = {
-    'SELECT_A': ['pilih A', 'jawaban A', 'yang A'],
-    'SELECT_B': ['pilih B', 'jawaban B', 'yang B'],
-    'SELECT_C': ['pilih C', 'jawaban C', 'yang C'],
-    'SELECT_D': ['pilih D', 'jawaban D', 'yang D'],
-    'NEXT': ['lanjut', 'berikutnya', 'selanjutnya'],
-    'READ_QUESTION': ['bacakan soal', 'ulang soal', 'apa pertanyaannya'],
-  };
+  const isTunarungu = profile?.disability_type === 'tunarungu';
 
   useEffect(() => {
-    fetchQuiz();
-  }, [id]);
-
-  const fetchQuiz = async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from('quizzes')
-      .select('*')
-      .eq('assignment_id', id)
-      .single();
-
-    if (data) {
-      setQuiz(data);
-      setQuestions(data.questions);
-      speak(`Kuis dimulai! Pertanyaan pertama: ${data.questions[0].text}`);
-    } else {
-      speak("Kuis tidak ditemukan.");
+    if (id && profile?.id) {
+      fetchQuizData();
     }
-    setLoading(false);
+
+    const handleKeyDown = (e) => {
+      if (e.key >= '1' && e.key <= '4') {
+        handleAnswer(parseInt(e.key) - 1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [id, profile?.id]);
+
+  const fetchQuizData = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch Quiz Info
+      const { data, error } = await supabase
+        .from('quizzes')
+        .select('*, assignments(subject, title)')
+        .eq('assignment_id', id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setQuiz(data);
+        setQuestions(data.questions);
+
+        // 2. Check if student already finished this quiz
+        const { data: submission } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('assignment_id', id)
+          .eq('student_id', profile.id)
+          .maybeSingle();
+
+        if (submission && (submission.status === 'submitted' || submission.status === 'graded')) {
+          setAlreadyDone(true);
+          setExistingResult(submission);
+        }
+      }
+    } catch (err) {
+      console.error("Fetch quiz error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAnswer = (index) => {
+    if (selectedAnswer !== null || finished || alreadyDone) return;
+
     setSelectedAnswer(index);
     const isCorrect = index === questions[currentIndex].correctIndex;
 
     if (isCorrect) {
       setScore(prev => prev + 1);
-      speak("Benar! Hebat sekali.");
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 2000);
-    } else {
-      speak("Kurang tepat. Jawaban yang benar adalah " + questions[currentIndex].options[questions[currentIndex].correctIndex]);
     }
 
     setTimeout(() => {
       if (currentIndex < questions.length - 1) {
         setCurrentIndex(prev => prev + 1);
         setSelectedAnswer(null);
-        speak(`Pertanyaan berikutnya: ${questions[currentIndex + 1].text}`);
       } else {
         finishQuiz();
       }
-    }, 3000);
+    }, 2500);
   };
 
   const finishQuiz = async () => {
+    if (finished || alreadyDone) return;
     setFinished(true);
-    const xpGained = score * 30; // 30 XP per correct answer
 
-    // Simpan hasil kuis dengan XP yang didapat
-    await supabase.from('quiz_results').insert({
-      quiz_id: quiz.id,
-      student_id: profile.id,
-      score: xpGained, // Simpan sebagai poin XP agar mudah diagregasi
-      answers: {
-        correct_count: score,
-        total_questions: questions.length,
-        percentage: Math.round((score / questions.length) * 100)
+    const percentage = Math.round((score / questions.length) * 100);
+    const xpGained = score * 30;
+
+    try {
+      // 1. Simpan hasil kuis
+      await supabase.from('quiz_results').insert({
+        quiz_id: quiz.id,
+        student_id: profile.id,
+        score: xpGained,
+        answers: {
+          correct_count: score,
+          total_questions: questions.length,
+          percentage: percentage
+        }
+      });
+
+      // 2. Simpan pengumpulan tugas
+      await supabase.from('submissions').insert({
+        assignment_id: id,
+        student_id: profile.id,
+        status: 'submitted',
+        total_score: xpGained,
+        submitted_at: new Date().toISOString()
+      });
+
+      // 3. Update XP (Realtime via Store)
+      await updateXP(xpGained);
+
+      // 4. Update Weak Topics jika nilai < 70
+      if (percentage < 70) {
+        const currentWeakTopics = profile.weak_topics || [];
+        const newTopic = quiz.assignments?.subject || quiz.assignments?.title || 'Umum';
+
+        if (!currentWeakTopics.includes(newTopic)) {
+          const updatedTopics = [...currentWeakTopics, newTopic].slice(-5);
+          await supabase
+            .from('profiles')
+            .update({ weak_topics: updatedTopics })
+            .eq('id', profile.id);
+        }
+      } else {
+        const currentWeakTopics = profile.weak_topics || [];
+        const topicToRemove = quiz.assignments?.subject || quiz.assignments?.title;
+        if (currentWeakTopics.includes(topicToRemove)) {
+          const updatedTopics = currentWeakTopics.filter(t => t !== topicToRemove);
+          await supabase
+            .from('profiles')
+            .update({ weak_topics: updatedTopics })
+            .eq('id', profile.id);
+        }
       }
-    });
 
-    // Update profile XP
-    await updateXP(xpGained);
-
-    // Sinkronisasi ulang data profil untuk memastikan total XP akurat
-    await fetchProfile(profile.id);
-
-    speak(`Kuis selesai! Kamu benar ${score} dari ${questions.length} soal. Kamu dapat ${xpGained} poin XP!`);
+      await fetchProfile(profile.id);
+    } catch (err) {
+      console.error("Error finishing quiz:", err);
+    }
   };
 
-  const handleCommand = (command) => {
-    if (command === 'SELECT_A') handleAnswer(0);
-    if (command === 'SELECT_B') handleAnswer(1);
-    if (command === 'SELECT_C') handleAnswer(2);
-    if (command === 'SELECT_D') handleAnswer(3);
-    if (command === 'READ_QUESTION') speak(questions[currentIndex].text);
-  };
+  if (loading) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="font-black text-indigo-600 uppercase tracking-widest">Memulai Kuis...</p>
+      </div>
+    </div>
+  );
 
-  if (loading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center font-black text-purple-600 animate-pulse">MEMULAI KUIS...</div>;
+  // Card view for already done quiz
+  if (alreadyDone) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="max-w-md w-full bg-white p-12 rounded-[3rem] shadow-xl border border-slate-100"
+        >
+          <span className="text-8xl mb-8 block">✅</span>
+          <h2 className="text-3xl font-black text-slate-900 mb-4 uppercase">Quiz Sudah Selesai!</h2>
+          <p className="text-slate-500 font-bold mb-8 uppercase text-xs tracking-[0.15em] leading-relaxed">
+            Kamu sudah mengerjakan misi <br/>
+            <span className="text-indigo-600">"{quiz?.assignments?.title || 'QuizKu'}"</span> sebelumnya.
+          </p>
+
+          <div className="bg-indigo-50 p-6 rounded-3xl mb-8">
+            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Skor Kamu</p>
+            <p className="text-5xl font-black text-indigo-600">{existingResult?.total_score || 0}</p>
+          </div>
+
+          <button
+            onClick={() => navigate('/student/dashboard')}
+            className="w-full py-5 bg-indigo-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-indigo-100 active:scale-95 transition-all uppercase tracking-widest"
+          >
+            Kembali ke Beranda
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (finished) {
     return (
@@ -119,16 +205,17 @@ const StudentQuiz = () => {
         <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="max-w-md w-full">
           <span className="text-8xl mb-8 block">🏆</span>
           <h2 className="text-4xl font-black text-slate-900 mb-4">Kuis Selesai!</h2>
-          <div className="bg-slate-50 p-8 rounded-[3rem] mb-8">
-            <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2">XP Kamu</p>
-            <p className="text-6xl font-black text-purple-600">+{score * 30}</p>
-            <p className="mt-4 text-slate-600 font-bold">{score} Jawaban Benar dari {questions.length}</p>
+          <div className="bg-slate-50 p-8 rounded-[3rem] mb-8 border border-slate-100 shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">XP Kamu</p>
+            <p className="text-6xl font-black text-indigo-600">+{score * 30}</p>
+            <p className="mt-4 text-slate-600 font-bold uppercase text-xs tracking-widest">{score} Jawaban Benar dari {questions.length}</p>
+            <p className="mt-1 text-indigo-500 font-black text-lg">{Math.round((score/questions.length)*100)}%</p>
           </div>
           <button
             onClick={() => navigate('/student/dashboard')}
-            className="w-full py-5 bg-purple-600 text-white font-black text-xl rounded-[2rem] shadow-xl shadow-purple-100 active:scale-95 transition-all"
+            className="w-full py-5 bg-indigo-600 text-white font-black text-xl rounded-[2rem] shadow-xl shadow-indigo-100 active:scale-95 transition-all uppercase tracking-[0.2em]"
           >
-            Kembali ke Dashboard
+            Kembali ke Beranda
           </button>
         </motion.div>
       </div>
@@ -139,57 +226,76 @@ const StudentQuiz = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-32">
-      <header className="bg-white border-b border-slate-100 px-6 py-6 sticky top-0 z-10 flex justify-between items-center">
+      <header className="bg-white border-b border-slate-100 px-8 py-6 sticky top-0 z-10 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight">Kuis Interaktif</h1>
+          <button onClick={() => navigate(-1)} className="text-slate-400 hover:text-indigo-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-xl font-black text-slate-900 uppercase tracking-tight">QuizKu: {quiz?.assignments?.title || 'Latihan'}</h1>
         </div>
-        <div className="bg-purple-50 px-4 py-2 rounded-2xl border border-purple-100">
-          <span className="text-xs font-black text-purple-600">SOAL {currentIndex + 1} / {questions.length}</span>
+        <div className="bg-indigo-50 px-6 py-2 rounded-2xl border border-indigo-100">
+          <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">Soal {currentIndex + 1} / {questions.length}</span>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="mb-12 text-center">
+      <main className="max-w-3xl mx-auto px-6 py-12">
+        <div className="w-full h-2 bg-slate-200 rounded-full mb-12 overflow-hidden">
+          <motion.div
+            className="h-full bg-indigo-600"
+            initial={{ width: 0 }}
+            animate={{ width: `${((currentIndex) / questions.length) * 100}%` }}
+          />
+        </div>
+
+        <div className="mb-12">
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-10 bg-white rounded-[3rem] shadow-sm border border-slate-100"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="p-12 bg-white rounded-[4rem] shadow-sm border border-slate-100 relative overflow-hidden"
           >
-            <h2 className="text-3xl font-black text-slate-800 leading-tight">
-              {currentQ.text}
+            <div className="flex items-center gap-4 mb-6">
+                <span className="text-3xl">❓</span>
+                <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">Pertanyaan</span>
+            </div>
+            <h2 className={`font-black text-slate-800 leading-tight ${isTunarungu ? 'text-4xl' : 'text-3xl'}`}>
+              {currentQ?.text}
             </h2>
           </motion.div>
         </div>
 
-        <div className="grid gap-4">
-          {currentQ.options.map((opt, i) => (
+        <div className="grid md:grid-cols-2 gap-6">
+          {currentQ?.options.map((opt, i) => (
             <motion.button
               key={i}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleAnswer(i)}
+              disabled={selectedAnswer !== null}
               className={`
-                p-6 rounded-[2rem] text-left font-black text-lg flex items-center gap-5 transition-all
+                p-8 rounded-[3rem] text-left font-black transition-all flex items-center gap-6 border-2
                 ${selectedAnswer === i
-                  ? (i === currentQ.correctIndex ? 'bg-green-500 text-white border-green-600' : 'bg-red-500 text-white border-red-600')
-                  : 'bg-white border-2 border-slate-100 text-slate-700 hover:border-purple-300'
+                  ? (i === currentQ.correctIndex ? 'bg-emerald-500 border-emerald-600 text-white shadow-xl shadow-emerald-100' : 'bg-rose-500 border-rose-600 text-white shadow-xl shadow-rose-100')
+                  : selectedAnswer !== null && i === currentQ.correctIndex
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                    : 'bg-white border-slate-50 text-slate-700 hover:border-indigo-200 shadow-sm'
                 }
+                ${isTunarungu ? 'text-2xl' : 'text-lg'}
               `}
             >
               <span className={`
-                w-10 h-10 rounded-xl flex items-center justify-center text-sm
-                ${selectedAnswer === i ? 'bg-white/20' : 'bg-slate-50 text-slate-400'}
+                w-12 h-12 rounded-2xl flex items-center justify-center font-black
+                ${selectedAnswer === i ? 'bg-white/20' : 'bg-indigo-50 text-indigo-600'}
               `}>
                 {String.fromCharCode(65 + i)}
               </span>
-              {opt}
+              <span className="flex-1">{opt}</span>
             </motion.button>
           ))}
         </div>
       </main>
-
-      <VoiceButton commands={quizCommands} onCommandMatch={handleCommand} customText="Ucapkan: Pilih A, B, C, atau D" />
       <ConfettiEffect active={showConfetti} />
     </div>
   );

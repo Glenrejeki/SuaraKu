@@ -1,93 +1,51 @@
-// supabase/functions/summarize/index.js
+// supabase/functions/summarize/index.ts
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
-  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-api-key",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 serve(async (req) => {
-  // Handle CORS Preflight
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders
-    });
-  }
-
-  // Only allow POST requests
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
-  }
+  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders });
 
   try {
-    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
-    const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-
-    if (!GROQ_API_KEY) {
-      throw new Error("GROQ_API_KEY is not set in Supabase Secrets");
+    const CUSTOM_API_KEY = Deno.env.get("CUSTOM_AI_TUTOR_KEY");
+    if (req.headers.get("x-api-key") !== CUSTOM_API_KEY) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
     }
 
     const { content, grade_level } = await req.json();
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
 
-    const SUMMARIZE_PROMPT = `Kamu adalah Kak SuaraKu, asisten belajar SD.
+    const SUMMARIZE_PROMPT = `Kamu adalah Kak BintangAi, asisten belajar SD.
 Tugasmu adalah meringkas materi modul menjadi poin-poin yang sangat sederhana untuk anak kelas ${grade_level || 'SD'}.
 Gunakan bahasa yang ceria dan banyak emoji. Maksimal 5 poin ringkasan.
-Setiap poin harus:
-- Menggunakan kata-kata sederhana
-- Disertai emoji yang relevan
-- Mudah diingat
 
 Format ringkasan:
 📚 **RINGKASAN MATERI**
-${Array.from({ length: 5 }, (_, i) => `${i+1}. [Poin dengan emoji]`).join('\n')}
+[Poin-poin di sini]
 
-✨ **Tips Belajar**: [1 tips sederhana]`;
+✨ **Tips Belajar**: [Tips]`;
 
-    const groqResponse = await fetch(GROQ_URL, {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
-        messages: [
-          { role: "system", content: SUMMARIZE_PROMPT },
-          { role: "user", content: `Ringkas materi berikut dengan format yang sudah ditentukan:\n\n${content}` },
-        ],
-        max_tokens: 500,
-        temperature: 0.5,
+        messages: [{ role: "system", content: SUMMARIZE_PROMPT }, { role: "user", content: content }],
       }),
     });
 
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
-      console.error("Groq API Error Response:", errText);
-      throw new Error(`Groq API Error: ${groqResponse.status}`);
-    }
-
-    const groqData = await groqResponse.json();
-    const summary = groqData.choices?.[0]?.message?.content ?? "📚 **Maaf, Kak SuaraKu sedang tidak bisa meringkas materi. Coba lagi nanti ya!** 😊";
+    const data = await response.json();
+    const summary = data.choices?.[0]?.message?.content ?? "Gagal meringkas.";
 
     return new Response(JSON.stringify({ summary }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-
-  } catch (error) {
-    console.error("Summarize Error:", error.message);
-    return new Response(JSON.stringify({
-      error: error.message,
-      summary: "Waduh, Kak SuaraKu kesulitan membaca modul ini. Coba lagi nanti ya! 😊"
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  } catch (error: any) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 200, headers: corsHeaders });
   }
 });
