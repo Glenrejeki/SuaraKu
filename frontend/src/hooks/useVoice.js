@@ -1,27 +1,33 @@
+// hooks/useVoice.js  (UPDATED - tambah isSpeaking)
 import { useState, useCallback, useRef } from 'react'
 
 export function useVoice() {
   const [isListening, setIsListening] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
   const [error, setError] = useState(null)
   const recognitionRef = useRef(null)
 
-  const speak = useCallback((text) => {
+  const speak = useCallback((text, rate = 0.9) => {
     if (!text) return
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'id-ID'
-    utterance.rate = 0.9
+    utterance.rate = rate
+
+    utterance.onstart = () => setIsSpeaking(true)
+    utterance.onend = () => setIsSpeaking(false)
+    utterance.onerror = () => setIsSpeaking(false)
+
     window.speechSynthesis.speak(utterance)
+    setIsSpeaking(true)
   }, [])
 
   const readPage = useCallback(() => {
     const elements = document.querySelectorAll('h1, h2, h3, p, button, label, li, [role="button"]');
     let fullText = "";
     elements.forEach(el => {
-      if (el.innerText) {
-        fullText += el.innerText + ". ";
-      }
+      if (el.innerText) fullText += el.innerText + ". ";
     });
     speak(fullText);
   }, [speak]);
@@ -76,11 +82,12 @@ export function useVoice() {
   return {
     isListening,
     isProcessing,
+    isSpeaking,
     setIsProcessing,
     error,
     startListening,
     stopListening,
     speak,
-    readPage
+    readPage,
   }
 }

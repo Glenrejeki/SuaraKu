@@ -3,6 +3,17 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/authStore';
 
+const AAC_QUICK_SYMBOLS = [
+  { label: 'Tolong', icon: '🙏' },
+  { label: 'Terima Kasih', icon: '😊' },
+  { label: 'Iya', icon: '✅' },
+  { label: 'Tidak', icon: '❌' },
+  { label: 'Paham', icon: '💡' },
+  { label: 'Bingung', icon: '😕' },
+  { label: 'Tanya', icon: '✋' },
+  { label: 'Selesai', icon: '🏁' },
+];
+
 const StudentSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,12 +47,24 @@ const StudentSidebar = () => {
     ), path: '/student/playground' },
   ];
 
+  const sendAACMessage = (text) => {
+    window.dispatchEvent(new CustomEvent('aac:send', { detail: { text } }));
+  };
+
+  const toggleGestureCamera = () => {
+    window.dispatchEvent(new CustomEvent('gesture:toggle'));
+  };
+
+  const openFullAAC = () => {
+    window.dispatchEvent(new CustomEvent('aac:toggle', { detail: { panel: 'aac', forceState: true } }));
+  };
+
   return (
     <aside className="w-64 bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen shrink-0 z-40 hidden lg:flex">
       <div className="flex flex-col h-full px-6 py-10">
         {/* Logo */}
         <div
-          className="flex items-center gap-2 px-3 mb-12 cursor-pointer transition-transform active:scale-95"
+          className="flex items-center gap-2 px-3 mb-10 cursor-pointer transition-transform active:scale-95"
           onClick={() => navigate('/')}
         >
           <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">S</div>
@@ -49,17 +72,17 @@ const StudentSidebar = () => {
         </div>
 
         {/* Menu Section */}
-        <div className="flex-1 space-y-8">
+        <div className="flex-1 space-y-6 overflow-y-auto pr-2 custom-scrollbar">
           <div>
-            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Dashboard</p>
-            <div className="space-y-1">
+            <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Menu</p>
+            <div className="space-y-0.5">
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                   <Link
                     key={item.label}
                     to={item.path}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 group relative ${
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-200 group relative ${
                       isActive
                         ? 'text-indigo-600 font-bold'
                         : 'text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50'
@@ -81,10 +104,47 @@ const StudentSidebar = () => {
               })}
             </div>
           </div>
+
+          {/* Aksesibilitas Khusus Tunawicara */}
+          {profile?.disability_type === 'tunawicara' && (
+            <div className="pt-4 border-t border-slate-50">
+              <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Komunikasi</p>
+
+              {/* Grid Simbol Cepat */}
+              <div className="px-2 grid grid-cols-4 gap-1 mb-4">
+                {AAC_QUICK_SYMBOLS.map((s, i) => (
+                  <button
+                    key={i}
+                    onClick={() => sendAACMessage(s.label)}
+                    className="flex flex-col items-center justify-center p-2 rounded-xl hover:bg-indigo-50 transition-all border border-transparent hover:border-indigo-100"
+                    title={s.label}
+                  >
+                    <span className="text-xl">{s.icon}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Tombol Kontrol */}
+              <div className="space-y-2 px-2">
+                <button
+                  onClick={toggleGestureCamera}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-bold text-slate-600 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100"
+                >
+                  <span>📷</span> Kamera Gesture
+                </button>
+                <button
+                  onClick={openFullAAC}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100"
+                >
+                  <span>🗣️</span> Panel Lengkap
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Profile */}
-        <div className="pt-8 border-t border-slate-50">
+        <div className="pt-6 border-t border-slate-50 mt-auto">
           <button
             onClick={() => navigate('/profile')}
             className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all group"

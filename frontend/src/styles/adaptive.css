@@ -4,7 +4,7 @@
 [data-disability="tunanetra"] {
     --bg-primary: #000000;
     --text-primary: #FFFFFF;
-    --accent-color: #FFFF00; /* Yellow for high visibility */
+    --accent-color: #FFFF00;
 }
 
 [data-disability="tunanetra"] body {
@@ -35,6 +35,34 @@
     color: #fff !important;
 }
 
+/* ── TUNANETRA: Focus ring yang sangat jelas ─────────────────── */
+[data-disability="tunanetra"] *:focus {
+    outline: 4px solid #FFFF00 !important;
+    outline-offset: 3px !important;
+}
+
+/* ── TUNANETRA: Skip-to-content link ─────────────────────────── */
+[data-disability="tunanetra"] .skip-to-content {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 99999 !important;
+    background: #FFFF00 !important;
+    color: #000 !important;
+    padding: 12px 24px !important;
+    font-weight: 900 !important;
+    transform: translateY(-100%) !important;
+    transition: transform 0.2s !important;
+}
+[data-disability="tunanetra"] .skip-to-content:focus {
+    transform: translateY(0) !important;
+}
+
+/* ── TUNANETRA: Override high-contrast via toolbar toggle ──────── */
+.high-contrast-override * {
+    transition: none !important;
+}
+
 /* 2. DEAF (Tunarungu) - Visual Feedback & Flash */
 [data-disability="tunarungu"] .visual-timer-flash {
     animation: flash-red 1s infinite;
@@ -50,6 +78,23 @@
     display: none !important;
 }
 
+/* ── TUNARUNGU: Animasi border saat ada pesan baru ──────────────── */
+[data-disability="tunarungu"] .new-message-indicator {
+    animation: borderPulse 1s ease 3;
+}
+
+@keyframes borderPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+    70%  { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+/* ── TUNARUNGU: Badge pengganti suara ───────────────────────────── */
+[data-disability="tunarungu"] .audio-badge::after {
+    content: " 📝";
+    font-size: 0.8em;
+}
+
 /* 3. MUTE (Tunawicara) - AAC Board Optimization */
 [data-disability="tunawicara"] .aac-grid {
     display: grid !important;
@@ -57,9 +102,28 @@
     gap: 15px;
 }
 
+/* ── TUNAWICARA: Tombol AAC lebih besar di layar sentuh ─────────── */
+[data-disability="tunawicara"] .aac-symbol-btn {
+    min-height: 80px !important;
+    min-width: 80px !important;
+    font-size: 2rem !important;
+}
+
 /* 4. DYSLEXIA - OpenDyslexic Font Simulation */
 [data-disability="disleksia"] body {
     font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+}
+
+/* 5. GLOBAL: Animasi flash notifikasi untuk tunarungu */
+@keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes flashNotify {
+    0%   { opacity: 0.8; }
+    50%  { opacity: 0.3; }
+    100% { opacity: 0; }
 }
 
 /* PWA Styling */

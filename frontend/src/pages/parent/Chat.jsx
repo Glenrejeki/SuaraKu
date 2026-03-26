@@ -180,23 +180,46 @@ const ParentChat = () => {
                </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-10 space-y-6 bg-[#FAFAFA]/50">
+            <div className="flex-1 overflow-y-auto p-10 space-y-8 bg-[#FAFAFA]/50">
                <AnimatePresence initial={false}>
-                  {messages.map((msg) => (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`flex ${msg.sender_id === profile.id ? 'justify-end' : 'justify-start'}`}
-                    >
-                       <div className={`max-w-[70%] p-4 rounded-3xl text-sm font-medium shadow-sm ${msg.sender_id === profile.id ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white text-slate-700 rounded-tl-none border border-slate-100'}`}>
-                          {msg.content}
-                          <p className={`text-[9px] mt-2 font-bold opacity-50 ${msg.sender_id === profile.id ? 'text-right' : 'text-left'}`}>
-                             {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
-                       </div>
-                    </motion.div>
-                  ))}
+                  {messages.map((msg, index) => {
+                    const isMe = msg.sender_id === profile.id;
+                    const prevMsg = messages[index - 1];
+                    const isFirstFromSender = !prevMsg || prevMsg.sender_id !== msg.sender_id;
+
+                    return (
+                      <motion.div
+                        key={msg.id}
+                        initial={{ opacity: 0, x: isMe ? 20 : -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className={`flex items-end gap-3 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
+                      >
+                         {!isMe && (
+                           <div className={`w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold shrink-0 mb-1 ${!isFirstFromSender ? 'opacity-0' : ''}`}>
+                             {selectedTeacher.full_name[0]}
+                           </div>
+                         )}
+                         <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[75%]`}>
+                            {isFirstFromSender && !isMe && (
+                              <span className="text-[10px] font-bold text-slate-400 ml-1 mb-1 uppercase tracking-wider">
+                                {selectedTeacher.full_name.split(' ')[0]}
+                              </span>
+                            )}
+                            <div className={`px-5 py-3.5 rounded-3xl text-[14px] leading-relaxed shadow-sm transition-all hover:shadow-md ${
+                              isMe
+                                ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-br-none'
+                                : 'bg-white text-slate-700 rounded-bl-none border border-slate-100'
+                            }`}>
+                               {msg.content}
+                            </div>
+                            <p className={`text-[10px] mt-1.5 font-bold text-slate-400 px-1`}>
+                               {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                         </div>
+                         {isMe && <div className="w-4" />}
+                      </motion.div>
+                    );
+                  })}
                </AnimatePresence>
                <div ref={scrollRef} />
             </div>
